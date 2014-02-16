@@ -1,0 +1,59 @@
+# bacula-dir.conf.erb - 2014-02-15 16:38
+#
+# Copyright (c) 2014 Paul Houghton <paul4hough@gmail.com>
+#
+# DO NOT EDIT - Managed by Puppet
+#
+# Bacula Director Master Configuration
+#   for <%= @hostname %>-dir
+
+# Define the name of this director so other clients can
+# connect to it and work with our system
+Director {
+  Name = "<%= @hostname -%>-dir"
+  Query File = "/etc/bacula/query.sql"
+  Working Directory = "/var/lib/bacula"
+  PID Directory = "/var/run/bacula"
+  Maximum Concurrent Jobs = <%= @max_jobs %>
+  Password = "<%= @hostname -%>-dir-pass"
+  Messages = "<%= @hostname -%>-messages-daemon"
+}
+
+# Backup data catalog
+Catalog {
+  Name = "<%= @hostname -%>-cat"
+  dbname = "<%= @db_name %>"
+  dbdriver = dbi:<%= @db_backend %>
+  <% unless db_backend == 'sqlite' -%>
+  dbaddress = <%= @db_host %>
+  <% unless @db_port == undef %>
+  dbport = <%= @db_port %>
+  <% end %>
+  user = <%= @db_user %>;
+  password = <%= @db_password %>
+  <% end %>
+}
+
+# Configure how the directory will log and/or send messages. 
+Messages {
+  Name = "<%= director_name -%>:messages:standard"
+  Mail Command = "/usr/lib/bacula/bsmtp -h localhost -f bacula@<%= domain -%> -s \"Bacula %t %e (for %c)\" %r"
+  Operator Command = "/usr/lib/bacula/bsmtp -h localhost -f bacula@<%= domain -%> -s \"Bacula Intervention Required (for %c)\" %r"
+  Mail = <%= mail_to -%> = all, !skipped
+  Operator = <%= mail_to -%> = mount
+  Console = all, !skipped, !saved
+  # WARNING! the following will create a file that you must cycle from
+  #          time to time as it will grow indefinitely. However, it will
+  #          also keep all your messages if they scroll off the console.
+  Append = "/var/log/bacula/<%= director_name -%>:director.log" = all, !skipped
+  Catalog = all
+}
+
+# These are messages directly from the various daemons themselves.
+Messages {
+  Name = "<%= director_name -%>:messages:daemon"
+  Mail Command = "/usr/lib/bacula/bsmtp -h localhost -f bacula@<%= domain -%> -s \"Bacula Notice (from Director %d)\" %r"
+  Mail = <%= mail_to -%> = all, !skipped
+  Console = all, !skipped, !saved
+  Append = "/var/log/bacula/<%= director_name -%>:director.log" = all, !skipped
+}
