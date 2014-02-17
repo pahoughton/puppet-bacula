@@ -1,0 +1,20 @@
+# client.conf.erb - 2014-02-16 10:05
+#
+# Copyright (c) 2014 Paul Houghton <paul4hough@gmail.com>
+#
+#
+# DO NOT EDIT - Managed by Puppet
+#
+# Bacula Director Client Configuration
+#   for <%= @fd_host %>-fd
+Client {
+  Name = "<%= @fd_host %>-fd"
+  FDAddress = "<%= @fd_host %>"
+  Catalog = "<%= @hostname %>-cat"
+  Password = "<%= @hostname %>-fd-pass"
+  File Retention = <%= @f_retention %>
+  Job Retention = <%= @j_retention %>
+  AutoPrune = <%= @auto_prune %>
+  Maximum Concurrent Jobs = <%= @max_jobs %>
+  Priority = <%= @priority %>
+}

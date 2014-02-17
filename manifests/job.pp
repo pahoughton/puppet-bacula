@@ -1,0 +1,70 @@
+# job.pp - 2014-02-16 10:46
+#
+# Copyright (c) 2014 Paul Houghton <paul4hough@gmail.com>
+#
+define bacula::job (
+  $client,
+  $fileset,
+  $type = 'Job',
+  $level,
+  $accurate,
+  $verify_job,
+  $jobdefs,
+  $bootstrap,
+  $messages,
+  $pool,
+  $full_pool,
+  $diff_pool,
+  $incr_pool,
+  $schedule,
+  $storage,
+  $max_delay,
+  $max_run,
+  $incr_max_run,
+  $max_wait,
+  $id_max_wait,
+  $diff_max_wait,
+  $max_sched,
+  $max_full_age,
+  $pref_mounted,
+  $prune_jobs,
+  $prune_files,
+  $prune_volumes,
+  $run_script,
+  $before_script,
+  $after_script,
+  $after_fail,
+  $client_before,
+  $client_after,
+  $rerun_fail,
+  $spool,
+  $spool_attr,
+  $where,
+  $add_prefix,
+  $add_suffix,
+  $strip_prefix,
+  $regex_where,
+  $replace,
+  $prefix_links,
+  $max_jobs,
+  $resched,
+  $resched_interval,
+  $resched_times,
+  $run,
+  $priority,
+  $mixed_pri,
+  $write_part,
+  ) {
+  $job = $name ? {
+    undef   => "${title}",
+    default => $name,
+  }
+
+  file { "/etc/bacula/bacula-dir.conf.d/${type}-${job}.conf" :
+    ensure  => 'file',
+    content => template($template),
+    notify  => Service[$dir_service],
+    require => Class['bacula::dir'],
+  }
+
+}

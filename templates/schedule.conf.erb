@@ -1,0 +1,15 @@
+# schedule.conf.erb - 2014-02-16 10:27
+#
+# Copyright (c) 2014 Paul Houghton <paul4hough@gmail.com>
+#
+# DO NOT EDIT - Managed by Puppet
+#
+# Bacula Director Schedule Configuration
+#   for <%= @hostname %>-dir
+Schedule {
+  Name = "<%= @sched %>"
+  <% @run.each do |rline| %>
+  Run = <%= rline %>
+  <% end %>
+}
+

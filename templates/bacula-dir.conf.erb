@@ -11,12 +11,12 @@
 # connect to it and work with our system
 Director {
   Name = "<%= @hostname -%>-dir"
+  Password = "<%= @hostname -%>-dir-pass"
   Query File = "/etc/bacula/query.sql"
-  Working Directory = "/var/lib/bacula"
+  Working Directory = "<%= @workdir %>"
   PID Directory = "/var/run/bacula"
   Maximum Concurrent Jobs = <%= @max_jobs %>
-  Password = "<%= @hostname -%>-dir-pass"
-  Messages = "<%= @hostname -%>-messages-daemon"
+  Messages = "<%= @hostname -%>-msg-daemon"
 }
 
 # Backup data catalog
@@ -34,26 +34,41 @@ Catalog {
   <% end %>
 }
 
+# MESSAGES
 # Configure how the directory will log and/or send messages. 
 Messages {
-  Name = "<%= director_name -%>:messages:standard"
-  Mail Command = "/usr/lib/bacula/bsmtp -h localhost -f bacula@<%= domain -%> -s \"Bacula %t %e (for %c)\" %r"
-  Operator Command = "/usr/lib/bacula/bsmtp -h localhost -f bacula@<%= domain -%> -s \"Bacula Intervention Required (for %c)\" %r"
-  Mail = <%= mail_to -%> = all, !skipped
-  Operator = <%= mail_to -%> = mount
+  Name = "<%= @hostname -%>-msg-standard"
+  Mail Command = "/usr/lib/bacula/bsmtp -h localhost -f bacula@<%= @hostname -%> -s \"Bacula %t %e (for %c)\" %r"
+  Operator Command = "/usr/lib/bacula/bsmtp -h localhost -f bacula@<%= @hostname -%> -s \"Bacula Intervention Required (for %c)\" %r"
+  Mail = <%= @mail_to -%> = all, !skipped
+  Operator = <%= @mail_to -%> = mount
   Console = all, !skipped, !saved
   # WARNING! the following will create a file that you must cycle from
   #          time to time as it will grow indefinitely. However, it will
   #          also keep all your messages if they scroll off the console.
-  Append = "/var/log/bacula/<%= director_name -%>:director.log" = all, !skipped
+  Append = "/var/log/bacula/<%= @hostname -%>-dir.log" = all, !skipped
   Catalog = all
 }
 
 # These are messages directly from the various daemons themselves.
 Messages {
-  Name = "<%= director_name -%>:messages:daemon"
-  Mail Command = "/usr/lib/bacula/bsmtp -h localhost -f bacula@<%= domain -%> -s \"Bacula Notice (from Director %d)\" %r"
-  Mail = <%= mail_to -%> = all, !skipped
+  Name = "<%= @hostname -%>-msg-daemon"
+  Mail Command = "/usr/lib/bacula/bsmtp -h localhost -f bacula@<%= hostname -%> -s \"Bacula Notice (from Director %d)\" %r"
+  Mail = <%= @mail_to -%> = all, !skipped
   Console = all, !skipped, !saved
-  Append = "/var/log/bacula/<%= director_name -%>:director.log" = all, !skipped
+  Append = "/var/log/bacula/<%= @hostname -%>-dir.log" = all, !skipped
+}
+
+# SCHEDULE
+# These two are the default backup schedule; don't change them
+Schedule {
+  Name = "WeeklyCycle"
+  Run = Level=Full First Sun at 23:05
+  Run = Level=Differential Second-Fifth Sun at 23:05
+  Run = Level=Incremental Mon-Sat at 23:05
+}
+
+Schedule {
+  Name = "WeeklyCycleAfterBackup"
+  Run = Level=Full Mon-Sun at 23:10
 }

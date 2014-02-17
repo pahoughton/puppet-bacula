@@ -3,16 +3,38 @@
 # Copyright (c) 2014 Paul Houghton <paul4hough@gmail.com>
 #
 class bacula::database (
-  $backend = 'postgresql',
-  $user = 'bacula',
-  $pass = 'bacula',
+  $backend  = 'postgresql',
+  $srv_pass = 'psql',
+  $user     = 'bacula',
+  $pass     = 'bacula',
 ) {
 
   case $backend {
     'postgresql' : {
+      class { 'postgresql::server' :
+        postgres_password  => $srv_pass,
+        listen_addresses   => '*',
+      }
+      postgresql::server::db { $title :
+        owner    => $db_user,
+        user     => $db_user,
+        password => $db_password,
+        require  => Class['postgresql::server'],
+        notify   => Exec['make_db_tables'],
+      }
     }
     default : {
       fail("unsupported db backend: ${backend}")
     }
+  }
+  
+  $db_params = $backend ? {
+    'sqlite'      => '',
+    'mysql'       => "--user=${user} --password=${passw}",
+    'postgresql'  => "",
+  }
+  exec { 'make_db_tables':
+    command     => "/usr/lib/bacula/make_bacula_tables $backend ${db_params}",
+    refreshonly => true,
   }
 }

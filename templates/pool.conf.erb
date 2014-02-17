@@ -1,0 +1,85 @@
+# pool.conf.erb - 2014-02-16 11:57
+#
+# Copyright (c) 2014 Paul Houghton <paul4hough@gmail.com>
+#
+Pool {
+  Name = "<%= @pool %>"
+
+  <% if @max_vol %>
+  Maximum Volumes = <%= @max_vol %>
+  <% end %>
+  <% if @type %>
+  Pool Type = <%= @type %>
+  <% end %>
+  <% if @storage %>
+  Storage = <%= @storage %>
+  <% end %>
+  <% if @use_once %>
+  Use Volume Once = <%= @use_once %>
+  <% end %>
+  <% if @max_vol_jobs %>
+  Maximum Volume Jobs = <%= @max_vol_jobs %>
+  <% end %>
+  <% if @max_vol_files %>
+  Maximum Volume Files = <%= @max_vol_files %>
+  <% end %>
+  <% if @max_vol_bytes %>
+  Maximum Volume Bytes = <%= @max_vol_bytes %>
+  <% end %>
+  <% if @vol_use_dur %>
+  Volume Use Duration = <%= @vol_use_dur %>
+  <% end %>
+  <% if @catalog_files %>
+  Catalog Files = <%= @catalog_files %>
+  <% end %>
+  <% if @auto_prune %>
+  Auto Prune = <%= @auto_prune %>
+  <% end %>
+  <% if @vol_retent %>
+  Volume Retention = <%= @vol_retent %>
+  <% end %>
+  <% if @scratch_pool %>
+  ScratchPool = <%= @scratch_pool %>
+  <% end %>
+  <% if @recycle_pool %>
+  RecyclePool = <%= @recycle_pool %>
+  <% end %>
+  <% if @recycle %>
+  Recycle = <%= @recycle %>
+  <% end %>
+  <% if @recycle_oldest %>
+  Recycle Oldest Volume = <%= @recycle_oldest %>
+  <% end %>
+  <% if @recycle_current %>
+  Recycle Current Volume = <%= @recycle_current %>
+  <% end %>
+  <% if @purge_oldest %>
+  Purge Oldest = <%= @purge_oldest %>
+  <% end %>
+  <% if @cleaning_prefix %>
+  Cleaning Prefix = <%= @cleaning_prefix %>
+  <% end %>
+  <% if @label_format %>
+  Label Format = <%= @label_format %>
+  <% end %>
+# max_vol Maximum Volumes
+# type Pool Type
+# storage Storage
+# use_once Use Volume Once
+# max_vol_jobs Maximum Volume Jobs
+# max_vol_files Maximum Volume Files
+# max_vol_bytes Maximum Volume Bytes
+# vol_use_dur Volume Use Duration
+# catalog_files Catalog Files
+# auto_prune Auto Prune
+# vol_retent Volume Retention
+# scratch_pool ScratchPool
+# recycle_pool RecyclePool
+# recycle Recycle
+# recycle_oldest Recycle Oldest Volume
+# recycle_current Recycle Current Volume
+# purge_oldest Purge Oldest
+# cleaning_prefix Cleaning Prefix
+# label_format Label Format
+
+}

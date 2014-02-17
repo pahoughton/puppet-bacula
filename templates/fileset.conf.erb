@@ -1,0 +1,38 @@
+# fileset.conf.erb - 2014-02-16 12:39
+#
+# Copyright (c) 2014 Paul Houghton <paul4hough@gmail.com>
+#
+# FIXME messy data structures [ [ ['file','file'], ['opt','opt'] ],...]
+
+FileSet {
+  Name = "<%= @fileset %>"
+  <% if @ignore_changes %>
+  Ignore FileSet Changes = <%= @ignore_changes %>
+  <% end %>
+  <% if @enable_vss %>
+  Enable VSS = <%= @enable_vss %>
+  <% end %> 
+# ignore_changes Ignore FileSet Changes
+# enable_vss Enable VSS
+
+<% @include.each do |inc| %>
+  Include {
+    <% if @inc[1] %>
+      Options { 
+      <% @inc[1].each do |opt| %>
+        <%= opt %>
+      <% end >
+      }
+    <% end >
+    <% @inc[0].each do |fn| %>
+      <%= fn %>
+    <% end >
+  }
+<% end %>
+<% @options.each do |opt| %>
+  <%= opt %>
+<% end %>
+<% @exclude.each do |fn| %>
+  <%= fn %>
+<% end %>
+}

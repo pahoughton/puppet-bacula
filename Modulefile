@@ -1,0 +1,10 @@
+name 'puppet-bacula'
+version '0.0.1'
+source 'git://github.com/pahoughton/puppet-bacula.git'
+author 'Inkling/Puppet Labs'
+description 'Bacula defined resource types'
+summary 'Bacula defined resource types'
+license 'ASL 2.0'
+project_page 'https://github.com/pahoughton/puppet-bacula'
+
+dependency 'puppetlabs/postgresql', '>= 0.0.1'

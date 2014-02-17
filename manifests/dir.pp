@@ -2,16 +2,17 @@
 #
 # Copyright (c) 2014 Paul Houghton <paul4hough@gmail.com>
 #
-class bacula::dirs (
+class bacula::dir (
   $db_backend = 'postgresql',
   $db_host    = 'localhost',
   $db_user    = 'bacula',
   $db_pass    = 'bacula',
   $db_name    = 'bacula',
   $max_jobs   = 5,
+  $mail_too   = 'root@localhost',
   ) {
   if $db_host == 'localhost' || $db_host == "${::hostname}" {
-    class bacula::database { 'bacula' :
+    class bacula::database { $db_name :
       backend => $db_backend,
       user  => $db_user,
       pass  => $db_pass,
