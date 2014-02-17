@@ -19,14 +19,15 @@ class bacula::fd (
   }
   $service = 'bacula-fd'
 
+  package { $package :
+    ensure => 'installed',
+  }
+  
   exec { "mkdir -p ${workdir} - bacula::fd" :
     command => "/bin/mkdir -p '${workdir}'",
     creates => "${workdir}",
   }
 
-  package { $package :
-    ensure => 'installed',
-  }
   file { '/etc/bacula/bacula-fd.conf' :
     ensure  => 'file',
     content => template($template),
