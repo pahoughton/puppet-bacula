@@ -10,14 +10,20 @@ class bacula::fd (
   $piddir     = '/var/run/',
   $fd_package = undef,
   $template   = 'bacula/bacula-fd.conf.erb',
+  $max_jobs   = 2,
   ) {
   
   $package = $fd_package ? {
-    undef   => 'bacula-fd',
+    undef   => 'bacula-client',
     default => $fd_package,
   }
   $service = 'bacula-fd'
-  
+
+  exec { "mkdir -p ${workdir} - bacula::fd" :
+    command => "/bin/mkdir -p '${workdir}'",
+    creates => "${workdir}",
+  }
+
   package { $package :
     ensure => 'installed',
   }

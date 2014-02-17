@@ -1,0 +1,186 @@
+# schedule.conf.erb - 2014-02-16 10:27
+#
+# Copyright (c) 2014 Paul Houghton <paul4hough@gmail.com>
+#
+# DO NOT EDIT - Managed by Puppet
+#
+# Bacula Storage Device Configuration
+#   for <%= @dir_host %>-dir
+Device {
+  Name = "<%= @device %>"
+  <% if @device %>
+  Archive Device = <%= @device %>
+  <% end %>
+  <% if @type %>
+  Device Type = <%= @type %>
+  <% end %>
+  <% if @media_type %>
+  Media Type = <%= @media_type %>
+  <% end %>
+  <% if @label_media %>
+  Label Media = <%= @label_media %>
+  <% end %>
+  <% if @auto_chg %>
+  Autochanger = <%= @auto_chg %>
+  <% end %>
+  <% if @chg_dev %>
+  Changer Device = <%= @chg_dev %>
+  <% end %>
+  <% if @chd_cmd %>
+  Changer Command = <%= @chd_cmd %>
+  <% end %>
+  <% if @alert_cmd %>
+  Alert Command = <%= @alert_cmd %>
+  <% end %>
+  <% if @drv_idx %>
+  Drive Index = <%= @drv_idx %>
+  <% end %>
+  <% if @auto_select %>
+  Autoselect = <%= @auto_select %>
+  <% end %>
+  <% if @max_chg_wait %>
+  Maximum Changer Wait = <%= @max_chg_wait %>
+  <% end %>
+  <% if @max_rw_wait %>
+  Maximum Rewind Wait = <%= @max_rw_wait %>
+  <% end %>
+  <% if @max_open_wait %>
+  Maximum Open Wait = <%= @max_open_wait %>
+  <% end %>
+  <% if @always_open %>
+  Always Open = <%= @always_open %>
+  <% end %>
+  <% if @vol_poll %>
+  Volume Poll Interval = <%= @vol_poll %>
+  <% end %>
+  <% if @close_poll %>
+  Close on Poll = <%= @close_poll %>
+  <% end %>
+  <% if @removable %>
+  Removable media = <%= @removable %>
+  <% end %>
+  <% if @random %>
+  Random access = <%= @random %>
+  <% end %>
+  <% if @auto_mount %>
+  Automatic Mount = <%= @auto_mount %>
+  <% end %>
+  <% if @req_mount %>
+  Requires Mount = <%= @req_mount %>
+  <% end %>
+  <% if @mnt_point %>
+  Mount Point = <%= @mnt_point %>
+  <% end %>
+  <% if @mnt_cmd %>
+  Mount Command = <%= @mnt_cmd %>
+  <% end %>
+  <% if @umnt_cmd %>
+  Umount Command = <%= @umnt_cmd %>
+  <% end %>
+  <% if @min_blk_size %>
+  Minimum block size = <%= @min_blk_size %>
+  <% end %>
+  <% if @max_blk_size %>
+  Maximum block size = <%= @max_blk_size %>
+  <% end %>
+  <% if @heom %>
+  Hardward End of Medium = <%= @heom %>
+  <% end %>
+  <% if @ffspace %>
+  Fast Forward Space File = <%= @ffspace %>
+  <% end %>
+  <% if @mtioc %>
+  Use MTIOC GET = <%= @mtioc %>
+  <% end %>
+  <% if @bsf_eom %>
+  BSF at EOM = <%= @bsf_eom %>
+  <% end %>
+  <% if @two_eof %>
+  TWO EOF = <%= @two_eof %>
+  <% end %>
+  <% if @bsr %>
+  Backward Space Record = <%= @bsr %>
+  <% end %>
+  <% if @bsf %>
+  Backward Space File = <%= @bsf %>
+  <% end %>
+  <% if @fsr %>
+  Forward Space Record = <%= @fsr %>
+  <% end %>
+  <% if @fsf %>
+  Forward Space File = <%= @fsf %>
+  <% end %>
+  <% if @offline %>
+  Offline On Unmount = <%= @offline %>
+  <% end %>
+  <% if @max_jobs %>
+  Maximum Concurrent Jobs = <%= @max_jobs %>
+  <% end %>
+  <% if @max_vol_size %>
+  Maximum Volume Size = <%= @max_vol_size %>
+  <% end %>
+  <% if @max_file_size %>
+  Maximum File Size = <%= @max_file_size %>
+  <% end %>
+  <% if @blocking %>
+  Block Positioning = <%= @blocking %>
+  <% end %>
+  <% if @max_net_buf %>
+  Maximum Network Buffer Size = <%= @max_net_buf %>
+  <% end %>
+  <% if @max_spool %>
+  Maximum Spool Size = <%= @max_spool %>
+  <% end %>
+  <% if @max_job_spool %>
+  Maximum Job Spool Size = <%= @max_job_spool %>
+  <% end %>
+  <% if @spool_dir %>
+  Spool Directory = <%= @spool_dir %>
+  <% end %>
+  <% if @max_part %>
+  Maximum Part Size = <%= @max_part %>
+  <% end %> 
+# device Archive Device
+# type Device Type
+# media_type Media Type
+# auto_chg Autochanger
+# chg_dev Changer Device
+# chd_cmd Changer Command
+# alert_cmd Alert Command
+# drv_idx Drive Index
+# auto_select Autoselect
+# max_chg_wait Maximum Changer Wait
+# max_rw_wait Maximum Rewind Wait
+# max_open_wait Maximum Open Wait
+# always_open Always Open
+# vol_poll Volume Poll Interval
+# close_poll Close on Poll
+# removable Removable media
+# random Random access
+# req_mount Requires Mount
+# mnt_point Mount Point
+# mnt_cmd Mount Command
+# umnt_cmd Umount Command
+# min_blk_size Minimum block size
+# max_blk_size Maximum block size
+# heom Hardward End of Medium
+# ffspace Fast Forward Space File
+# mtioc Use MTIOC GET
+# bsf_eom BSF at EOM
+# two_eof TWO EOF
+# bsr Backward Space Record
+# bsf Backward Space File
+# fsr Forward Space Record
+# fsf Forward Space File
+# offline Offline On Unmount
+# max_jobs Maximum Concurrent Jobs
+# max_vol_size Maximum Volume Size
+# max_file_size Maximum File Size
+# blocking Block Positioning
+# max_net_buf Maximum Network Buffer Size
+# max_spool Maximum Spool Size
+# max_job_spool Maximum Job Spool Size
+# spool_dir Spool Directory
+# max_part Maximum Part Size
+}
+

@@ -3,39 +3,20 @@
 # Copyright (c) 2014 Paul Houghton <paul4hough@gmail.com>
 #
 class bacula::sd (
-  $sd_directory = '/mnt/bacula/default',
-  $db_backend = 'postgresql',
   $dir_host = undef,
-  $max_jobs = 20,
+  $workdir = '/var/lib/bacula/work',
+  $max_jobs = 2,
+  $package = 'bacula-storage'
+  $service = 'bacula-sd'
   ) {
 
-  case $db_backend {
-    'postgresql' : {
-      $sd_package = $::operatingsystem ? {
-        'Fedora' => 'bacula-storage',
-        'CentOS' => 'bacula-storage-postgresql',
-        'Ubuntu' => 'bacula-storage-pgsql',
-      }
-    }
-    'mysql' : {
-      $sd_package = $::operatingsystem ? {
-        'Fedora' => 'bacula-storage',
-        'CentOS' => 'bacula-storage-mysql',
-        'Ubuntu' => 'bacula-storage-mysql',
-      }
-    }
-    'sqlite' : {
-      $sd_package = $::operatingsystem ? {
-        'Fedora' => 'bacula-storage',
-        'CentOS' => 'bacula-storage-sqlite',
-        'Ubuntu' => 'bacula-storage-sqlite3',
-      }
-    }
-    default : {
-      fail("Unsupported db_backend '${db_backend}'")
-    }
+  
+  exec { "mkdir -p ${workdir} - bacula::fd" :
+    command => "/bin/mkdir -p '${workdir}'",
+    creates => "${workdir}",
   }
-  package { $sd_package:
+
+  package { $package:
     ensure => installed,
   }
  
@@ -44,8 +25,8 @@ class bacula::sd (
     owner   => 'bacula',
     group   => 'bacula',
     content => template($template),
-    notify  => Service['bacula-sd'],
-    require => Package[$sd_package],
+    notify  => Service[$service],
+    require => Package[$package],
   }
 
   file { $sd_directory :
@@ -58,13 +39,13 @@ class bacula::sd (
     ensure => directory,
     owner  => 'bacula',
     group  => 'bacula',
-    before => Service['bacula-sd'],
+    before => Service[$service],
   }
 
   # Register the Service so we can manage it through Puppet
-  service { 'bacula-sd':
+  service { $service:
     ensure     => 'running',
     enable     => true,
-    require    => Package[$sd_package],
+    require    => Package[$package],
   }
 }

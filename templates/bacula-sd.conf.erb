@@ -25,18 +25,6 @@ Storage {
 }
 
 
-# Now configure the default Device this Storage Daemon will provide
-Device {
-  Name = "FileStorage"
-  Media Type = File
-  Archive Device = "<%= @sd_directory %>"
-  Label Media = Yes
-  Random Access = Yes
-  Automatic Mount = Yes
-  Removable Media = No
-  Always Open = No
-}
-
 # All other Devices are created by the clients that need them - each will
 # prepare their own device and pool configuration, which will then be
 # saved under /etc/bacula/bacula-sd.d and imported by the following line:
