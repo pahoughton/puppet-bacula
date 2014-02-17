@@ -4,10 +4,11 @@
 #
 class bacula::sd (
   $dir_host = undef,
-  $workdir = '/var/lib/bacula/work',
+  $workdir  = '/var/lib/bacula/work',
   $max_jobs = 2,
-  $package = 'bacula-storage'
-  $service = 'bacula-sd'
+  $package  = 'bacula-storage',
+  $service  = 'bacula-sd',
+  $template = 'bacula/bacula-sd.conf.erb'
   ) {
 
   
