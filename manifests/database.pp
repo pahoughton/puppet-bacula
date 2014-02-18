@@ -34,7 +34,11 @@ class bacula::database (
     'postgresql'  => "",
   }
   exec { 'make_db_tables':
-    command     => "/usr/lib/bacula/make_bacula_tables $backend ${db_params}",
+    command     => "/usr/libexec/bacula/make_bacula_tables ${backend} ${db_params}",
+    user        => $backend ? {
+      'postgresql' => $user,
+      default      => root,
+    },
     refreshonly => true,
   }
 }

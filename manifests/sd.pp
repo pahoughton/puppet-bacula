@@ -8,6 +8,7 @@ class bacula::sd (
   $max_jobs = 2,
   $package  = 'bacula-storage',
   $service  = 'bacula-sd',
+  $default  = '/var/lib/bacula/backups',
   $template = 'bacula/bacula-sd.conf.erb'
   ) {
 
@@ -48,5 +49,10 @@ class bacula::sd (
     ensure     => 'running',
     enable     => true,
     require    => Package[$package],
+  }
+  if $default {
+    bacula::device::file { 'Default' :
+      device => $default,
+    }
   }
 }
