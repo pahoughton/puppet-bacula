@@ -5,141 +5,141 @@
 # DO NOT EDIT - Managed by Puppet
 #
 # Bacula Storage Device Configuration
-#   for <%= @dir_host %>-dir
+#   for <%= @hostname %>-sd
 Device {
-  Name = "<%= @device %>"
+  Name = "<%= @devname %>"
   <% if @device %>
   Archive Device = <%= @device %>
-  <% end %>
+  <% end -%>
   <% if @type %>
   Device Type = <%= @type %>
-  <% end %>
+  <% end -%>
   <% if @media_type %>
   Media Type = <%= @media_type %>
-  <% end %>
+  <% end -%>
   <% if @label_media %>
   Label Media = <%= @label_media %>
-  <% end %>
+  <% end -%>
   <% if @auto_chg %>
   Autochanger = <%= @auto_chg %>
-  <% end %>
+  <% end -%>
   <% if @chg_dev %>
   Changer Device = <%= @chg_dev %>
-  <% end %>
+  <% end -%>
   <% if @chd_cmd %>
   Changer Command = <%= @chd_cmd %>
-  <% end %>
+  <% end -%>
   <% if @alert_cmd %>
   Alert Command = <%= @alert_cmd %>
-  <% end %>
+  <% end -%>
   <% if @drv_idx %>
   Drive Index = <%= @drv_idx %>
-  <% end %>
+  <% end -%>
   <% if @auto_select %>
   Autoselect = <%= @auto_select %>
-  <% end %>
+  <% end -%>
   <% if @max_chg_wait %>
   Maximum Changer Wait = <%= @max_chg_wait %>
-  <% end %>
+  <% end -%>
   <% if @max_rw_wait %>
   Maximum Rewind Wait = <%= @max_rw_wait %>
-  <% end %>
+  <% end -%>
   <% if @max_open_wait %>
   Maximum Open Wait = <%= @max_open_wait %>
-  <% end %>
+  <% end -%>
   <% if @always_open %>
   Always Open = <%= @always_open %>
-  <% end %>
+  <% end -%>
   <% if @vol_poll %>
   Volume Poll Interval = <%= @vol_poll %>
-  <% end %>
+  <% end -%>
   <% if @close_poll %>
   Close on Poll = <%= @close_poll %>
-  <% end %>
+  <% end -%>
   <% if @removable %>
   Removable media = <%= @removable %>
-  <% end %>
+  <% end -%>
   <% if @random %>
   Random access = <%= @random %>
-  <% end %>
+  <% end -%>
   <% if @auto_mount %>
   Automatic Mount = <%= @auto_mount %>
-  <% end %>
+  <% end -%>
   <% if @req_mount %>
   Requires Mount = <%= @req_mount %>
-  <% end %>
+  <% end -%>
   <% if @mnt_point %>
   Mount Point = <%= @mnt_point %>
-  <% end %>
+  <% end -%>
   <% if @mnt_cmd %>
   Mount Command = <%= @mnt_cmd %>
-  <% end %>
+  <% end -%>
   <% if @umnt_cmd %>
   Umount Command = <%= @umnt_cmd %>
-  <% end %>
+  <% end -%>
   <% if @min_blk_size %>
   Minimum block size = <%= @min_blk_size %>
-  <% end %>
+  <% end -%>
   <% if @max_blk_size %>
   Maximum block size = <%= @max_blk_size %>
-  <% end %>
+  <% end -%>
   <% if @heom %>
   Hardward End of Medium = <%= @heom %>
-  <% end %>
+  <% end -%>
   <% if @ffspace %>
   Fast Forward Space File = <%= @ffspace %>
-  <% end %>
+  <% end -%>
   <% if @mtioc %>
   Use MTIOC GET = <%= @mtioc %>
-  <% end %>
+  <% end -%>
   <% if @bsf_eom %>
   BSF at EOM = <%= @bsf_eom %>
-  <% end %>
+  <% end -%>
   <% if @two_eof %>
   TWO EOF = <%= @two_eof %>
-  <% end %>
+  <% end -%>
   <% if @bsr %>
   Backward Space Record = <%= @bsr %>
-  <% end %>
+  <% end -%>
   <% if @bsf %>
   Backward Space File = <%= @bsf %>
-  <% end %>
+  <% end -%>
   <% if @fsr %>
   Forward Space Record = <%= @fsr %>
-  <% end %>
+  <% end -%>
   <% if @fsf %>
   Forward Space File = <%= @fsf %>
-  <% end %>
+  <% end -%>
   <% if @offline %>
   Offline On Unmount = <%= @offline %>
-  <% end %>
+  <% end -%>
   <% if @max_jobs %>
   Maximum Concurrent Jobs = <%= @max_jobs %>
-  <% end %>
+  <% end -%>
   <% if @max_vol_size %>
   Maximum Volume Size = <%= @max_vol_size %>
-  <% end %>
+  <% end -%>
   <% if @max_file_size %>
   Maximum File Size = <%= @max_file_size %>
-  <% end %>
+  <% end -%>
   <% if @blocking %>
   Block Positioning = <%= @blocking %>
-  <% end %>
+  <% end -%>
   <% if @max_net_buf %>
   Maximum Network Buffer Size = <%= @max_net_buf %>
-  <% end %>
+  <% end -%>
   <% if @max_spool %>
   Maximum Spool Size = <%= @max_spool %>
-  <% end %>
+  <% end -%>
   <% if @max_job_spool %>
   Maximum Job Spool Size = <%= @max_job_spool %>
-  <% end %>
+  <% end -%>
   <% if @spool_dir %>
   Spool Directory = <%= @spool_dir %>
-  <% end %>
+  <% end -%>
   <% if @max_part %>
   Maximum Part Size = <%= @max_part %>
-  <% end %> 
+  <% end -%> 
 # device Archive Device
 # type Device Type
 # media_type Media Type

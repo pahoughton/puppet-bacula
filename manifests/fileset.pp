@@ -16,11 +16,11 @@ define bacula::fileset (
     default => $name,
   }
 
-  file { "/etc/bacula/bacula-dir.conf.d/${fileset}-fileset.conf" :
+  file { "/etc/bacula/bacula-dir.d/fileset-${fileset}.conf" :
     ensure  => 'file',
     content => template($template),
     notify  => Service[$bacula::dir::service],
-    require => Class['bacula::dir'],
+    require => File['/etc/bacula/bacula-dir.d'],
   }
 }
   

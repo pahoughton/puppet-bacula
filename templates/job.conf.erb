@@ -1,4 +1,4 @@
-.conf.erb - 2014-02-16 10:47
+# job.conf.erb - 2014-02-16 10:47
 #
 # Copyright (c) 2014 Paul Houghton <paul4hough@gmail.com>
 #
@@ -7,161 +7,165 @@
 # Bacula Director Job/JobDefs Configuration
 #   for <%= @hostname %>-dir
 
-<%= @type %> {
-  <% if @client %>
+<%= @jtype %> {
+<% if @client -%>
   Client = "<%= @client %>"
-  <% end %>
-  Name = <%= @name %>
-  <% if @fileset %>
+<% end -%>
+  Name = "<%= @title %>"
+<% if @fileset -%>
   FileSet = "<%= @fileset %>"
-  <% end %>
+<% end -%>
+<% if @enabled -%>
   Enabled = <%= @enabled %>
-  <% if @type %>
+<% end -%>
+<% if @type -%>
   Type = <%= @type %>
-  <% end %>
-  <% if @level %>
+<% end -%>
+<% if @level -%>
   Level = <%= @level %>
-  <% end %>
-  <% if @accurate %>
+<% end -%>
+<% if @accurate -%>
   Accurate = <%= @accurate %>
-  <% end %>
-  <% if @verify_job %>
+<% end -%>
+<% if @verify_job -%>
   Verify Job = <%= @verify_job %>
-  <% end %>
-  <% if @jobdefs %>
+<% end -%>
+<% if @jobdefs -%>
   JobDefs = "<%= @jobdefs %>"
-  <% end %>
-  <% if @bootstrap %>
+<% end -%>
+<% if @bootstrap -%>
   Bootstrap = <%= @bootstrap %>
+<% end -%>
+<% if @write_bootstrap -%>
   Write Bootstrap = <%= @write_bootstrap %>
-  <% end %>
-  <% if @messages %>
+<% end -%>
+<% if @messages -%>
   Messages = "<%= @messages %>"
-  <% end %>
-  <% if @pool %>
-  Pool = "<% @pool %>"
-  <% end %>
-  <% if @full_pool %>
+<% end -%>
+<% if @pool -%>
+  Pool = "<%= @pool %>"
+<% end -%>
+<% if @full_pool -%>
   Full Backup Pool = "<%= @full_pool %>"
-  <% end %>
-  <% if @diff_pool %>
+<% end -%>
+<% if @diff_pool -%>
   Differential Backup Pool = "<%= @diff_pool %>"
-  <% end %>
-  <% if @incr_pool %>
+<% end -%>
+<% if @incr_pool -%>
   Incremental Backup Pool = "<%= @incr_pool %>"
-  <% end %>
-  <% if @schedule %>
-  Schedule = "<%= @schedule %>"
-  <% end %>
-  <% if @storage %>
+<% end -%>
+<% if @sched -%>
+  Schedule = "<%= @sched %>"
+<% end -%>
+<% if @storage -%>
   Storage = "<%= @storage %>"
-  <% end %>
-  <% if @max_delay %>
+<% end -%>
+<% if @max_delay -%>
   Max Start Delay = "<%= @max_delay %>"
-  <% end %>
-  <% if @max_run %>
+<% end -%>
+<% if @max_run -%>
   Max Run Time = "<%= @max_run %>"
-  <% end %>
-  <% if @incr_max_run %>
-  Incremental Max Run Time = "<%= @ %>"
-  <% end %>
-  <% if @max_wait %>
+<% end -%>
+<% if @incr_max_run -%>
+  Incremental Max Run Time = "<%= @incr_max_run %>"
+<% end -%>
+<% if @max_wait -%>
   Max Wait Time = "<%= @max_wait %>"
-  <% end %>
-  <% if @id_max_wait %>
+<% end -%>
+<% if @id_max_wait -%>
   Incremental|Differential Max Wait Time = "<%= @id_max_wait %>"
-  <% end %>
-  <% if @diff_max_wait %>
+<% end -%>
+<% if @diff_max_wait -%>
   Differential Max Wait Time = "<%= @dif_max_wait %>"
-  <% end %>
-  <% if @max_sched %>
+<% end -%>
+<% if @max_sched -%>
   Max Run Sched_Time = "<%= @max_sched %>"
-  <% end %>
-  <% if @max_full_age %>
+<% end -%>
+<% if @max_full_age -%>
   Max Full Age = "<%= @max_full_age %>"
-  <% end %>
-  <% if @pref_mounted %>
+<% end -%>
+<% if @pref_mounted -%>
   Prefer Mounted Volumes = "<%= @pref_mounted %>"
-  <% end %>
-  <% if @prune_jobs %>
+<% end -%>
+<% if @prune_jobs -%>
   Prune Jobs = "<%= @prune_jobs %>"
-  <% end %>
-  <% if @prune_files %>
+<% end -%>
+<% if @prune_files -%>
   Prune Files = "<%= @prune_files %>"
-  <% end %>
-  <% if @prune_volumes %>
+<% end -%>
+<% if @prune_volumes -%>
   Prune Volumes = "<%= @prune_volumes %>"
-  <% end %>
-  <% if @run_script %>
+<% end -%>
+<% if @run_script -%>
   RunScript = "<%= @run_script %>"
-  <% end %>
-  <% if @before_script %>
+<% end -%>
+<% if @before_script -%>
   Run Before Job = "<%= @before_script %>"
-  <% end %>
-  <% if @after_script %>
+<% end -%>
+<% if @after_script -%>
   Run After Job = "<%= @after_script %>"
-  <% end %>
-  <% if @after_fail %>
+<% end -%>
+<% if @after_fail -%>
   Run After Fail = "<%= @after_fail %>"
-  <% end %>
-  <% if @client_before %>
+<% end -%>
+<% if @client_before -%>
   Client Run Before Job = "<%= @client_before %>"
-  <% end %>
-  <% if @client_after %>
+<% end -%>
+<% if @client_after -%>
   Client Run After Job = "<%= @client_after %>"
-  <% end %>
-  <% if @rerun_fail %>
+<% end -%>
+<% if @rerun_fail -%>
   Rerun Failed Levels = "<%= @rerun_fail %>"
-  <% end %>
-  <% if @spool %>
+<% end -%>
+<% if @spool -%>
   Spool Data = "<%= @spool %>"
-  <% end %>
-  <% if @spool_attr %>
-  Spool Attributes = "<%= @ %>"
-  <% end %>
-  <% if @where %>
+<% end -%>
+<% if @spool_attr -%>
+  Spool Attributes = "<%= @spool_attr %>"
+<% end -%>
+<% if @where -%>
   Where = "<%= @where %>"
-  <% end %>
-  <% if @add_prefix %>
+<% end -%>
+<% if @add_prefix -%>
   Add Prefix = "<%= @add_prefix %>"
-  <% end %>
-  <% if @add_suffix %>
+<% end -%>
+<% if @add_suffix -%>
   Add Suffix = "<%= @add_suffix %>"
-  <% end %>
-  <% if @strip_prefix %>
+<% end -%>
+<% if @strip_prefix -%>
   Strip Prefix = "<%= @strip_prefix %>"
-  <% end %>
-  <% if @regex_where %>
+<% end -%>
+<% if @regex_where -%>
   RegexWhere = "<%= @regex_where %>"
-  <% end %>
-  <% if @replace %>
+<% end -%>
+<% if @replace -%>
   Replace = "<%= @replace %>"
-  <% end %>
-  <% if @prefix_links %>
+<% end -%>
+<% if @prefix_links -%>
   Prefix Links = "<%= @prefix_links %>"
-  <% end %>
-  <% if @max_jobs %>
+<% end -%>
+<% if @max_jobs -%>
   Maximum Concurrent Jobs = "<%= @max_jobs %>"
-  <% end %>
-  <% if @resched %>
+<% end -%>
+<% if @resched -%>
   Reschedule On Error = "<%= @resched %>"
-  <% end %>
-  <% if @resched_interval %>
+<% end -%>
+<% if @resched_interval -%>
   Reschedule Interval = "<%= @resched_interval %>"
-  <% end %>
-  <% if @resched_times %>
+<% end -%>
+<% if @resched_times -%>
   Reschedule Times = "<%= @resched_times %>"
-  <% end %>
-  <% if @run %>
+<% end -%>
+<% if @run -%>
   Run = "<%= @run %>"
-  <% end %>
-  <% if @priority %>
+<% end -%>
+<% if @priority -%>
   Priority = "<%= @priority %>"
-  <% end %>
-  <% if @mixed_pri %>
+<% end -%>
+<% if @mixed_pri -%>
   Allow Mixed Priority = "<%= @mixed_pri %>"
-  <% end %>
-  <% if @write_part %>
+<% end -%>
+<% if @write_part -%>
   Write Part After Job = "<%= @write_part %>"
-  <% end %>
+<% end -%>
 }  

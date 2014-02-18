@@ -1,0 +1,21 @@
+#!/bin/sh
+# pgclean.bash.erb - 2014-02-17 09:32
+#
+# Source: http://wiki.bacula.org/doku.php?id=application_specific_backups:postgresql
+#
+#  remove fifo's used by bacula to read and perform database backup's through.
+#
+DUMPDIR="<%= @pg_dumpdir %>" #/var/lib/pgsql/backups
+FIFODIR="$DUMPDIR/fifo"
+for dbname in `psql -U postgres -d template1 -q -t <<EOF
+select datname from pg_database where not datname in ('bacula','template0') order by datname;
+EOF
+` 
+do
+ # ps aux
+ # kill `ps aux | fgrep "/usr/bin/pg_dump" | fgrep " --file=$FIFODIR/$dbname.schema.dump" | awk '{print $2}'`
+ rm -f $FIFODIR/$dbname.schema.dump
+ # kill `ps aux | fgrep "/usr/bin/pg_dump" | fgrep " --file=$FIFODIR/$dbname.data.dump" | awk '{print $2}'`
+ rm -f $FIFODIR/$dbname.data.dump
+done
+rm -f $DUMPDIR/globalobjects.dump

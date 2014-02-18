@@ -15,10 +15,10 @@ class bacula::database (
         postgres_password  => $srv_pass,
         listen_addresses   => '*',
       }
-      postgresql::server::db { $title :
-        owner    => $db_user,
-        user     => $db_user,
-        password => $db_password,
+      postgresql::server::db { $name :
+        owner    => $user,
+        user     => $user,
+        password => $pass,
         require  => Class['postgresql::server'],
         notify   => Exec['make_db_tables'],
       }

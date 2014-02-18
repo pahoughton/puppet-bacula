@@ -3,10 +3,10 @@
 # Copyright (c) 2014 Paul Houghton <paul4hough@gmail.com>
 #
 define bacula::device (
-  $name = undef,
   $device= undef,
   $type= undef,
   $media_type= undef,
+  $label_media = undef,
   $auto_chg= undef,
   $chg_dev= undef,
   $chd_cmd= undef,
@@ -50,20 +50,14 @@ define bacula::device (
   $template = 'bacula/device.conf.erb',
   ) {
 
-  $service = 'bacula-sd'
-  $package = 'bacula-storage'
-  
-  package { $package :
-    ensure => 'installed',
-  }
-  $device = $name ? {
+  $devname = $name ? {
     undef   => "${title}",
     default => "${name}",
   }
-  file { "/etc/bacula/bacula-sdd.conf.d/device-${device}.conf" :
+  file { "/etc/bacula/bacula-sd.d/device-${devname}.conf" :
     ensure  => 'file',
     content => template($template),
-    notify  => Service[$service],
-    require => Package[$package],
+    notify  => Service[$bacula::sd::service],
+    require => File['/etc/bacula/bacula-sd.d'],
   }
 }

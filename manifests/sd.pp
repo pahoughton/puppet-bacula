@@ -12,7 +12,7 @@ class bacula::sd (
   ) {
 
   
-  exec { "mkdir -p ${workdir} - bacula::fd" :
+  exec { "mkdir -p ${workdir} - bacula::sd" :
     command => "/bin/mkdir -p '${workdir}'",
     creates => "${workdir}",
   }
@@ -30,21 +30,21 @@ class bacula::sd (
     require => Package[$package],
   }
 
-  file { $sd_directory :
-    ensure => directory,
-    owner  => 'bacula',
-    group  => 'bacula',
-  }
-  
   file { '/etc/bacula/bacula-sd.d':
     ensure => directory,
     owner  => 'bacula',
     group  => 'bacula',
     before => Service[$service],
   }
-
+  file { '/etc/bacula/bacula-sd.d/empty.conf' :
+    ensure  => 'file',
+    owner   => 'bacula',
+    group   => 'bacula',
+    content => "# empty\n",
+    before  => Service[$service],
+  }
   # Register the Service so we can manage it through Puppet
-  service { $service:
+  service { $service :
     ensure     => 'running',
     enable     => true,
     require    => Package[$package],

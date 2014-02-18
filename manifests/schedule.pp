@@ -3,7 +3,6 @@
 # Copyright (c) 2014 Paul Houghton <paul4hough@gmail.com>
 #
 define bacula::schedule (
-  $name,
   $run = undef,
   ) {
   
@@ -12,10 +11,10 @@ define bacula::schedule (
     default => $name,
   }
 
-  file { "/etc/bacula/bacula-dir.conf.d/sched-${sched}.conf" :
+  file { "/etc/bacula/bacula-dir.d/sched-${sched}.conf" :
     ensure  => 'file',
     content => template($template),
-    notify  => Service[$dir_service],
+    notify  => Service[$bacula::dir::service],
     require => Class['bacula::dir'],
   }
 }

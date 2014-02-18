@@ -1,0 +1,15 @@
+# bconsole.conf.erb - 2014-02-17 13:07
+#
+# Copyright (c) 2014 Paul Houghton <paul_houghton@cable.comcast.com>
+#
+# DO NOT EDIT - Managed by Puppet
+#
+# Bacula Director Console Configuration
+#   for <%= @dir_host %>-fd
+Director {
+<% if @name -%>
+  Name = "<%= @name %>"
+<% end -%>
+  Address = "<%= @dir_host %>"
+  Password = "<%= @password %>"
+}

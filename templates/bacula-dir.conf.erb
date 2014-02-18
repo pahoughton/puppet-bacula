@@ -24,14 +24,14 @@ Catalog {
   Name = "<%= @hostname -%>-cat"
   dbname = "<%= @db_name %>"
   dbdriver = dbi:<%= @db_backend %>
-  <% unless db_backend == 'sqlite' -%>
+<% unless @db_backend == 'sqlite' -%>
   dbaddress = <%= @db_host %>
-  <% unless @db_port == undef %>
+<% if @db_port -%>
   dbport = <%= @db_port %>
-  <% end %>
-  user = <%= @db_user %>;
-  password = <%= @db_password %>
-  <% end %>
+<% end -%>
+  user = <%= @db_user %>
+  password = <%= @db_pass %>
+<% end -%>
 }
 
 # MESSAGES
@@ -72,3 +72,7 @@ Schedule {
   Name = "WeeklyCycleAfterBackup"
   Run = Level=Full Mon-Sun at 23:10
 }
+
+# Finally, bring in all the additional pieces of configuration from the
+# different servers for which this Director was configured to manage
+@|"sh -c 'for f in /etc/bacula/bacula-dir.d/*.conf ; do echo @${f} ; done'"

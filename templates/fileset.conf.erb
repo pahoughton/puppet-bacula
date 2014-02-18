@@ -6,33 +6,38 @@
 
 FileSet {
   Name = "<%= @fileset %>"
-  <% if @ignore_changes %>
+<% if @ignore_changes -%>
   Ignore FileSet Changes = <%= @ignore_changes %>
-  <% end %>
-  <% if @enable_vss %>
+<% end -%>
+<% if @enable_vss -%>
   Enable VSS = <%= @enable_vss %>
-  <% end %> 
-# ignore_changes Ignore FileSet Changes
-# enable_vss Enable VSS
-
+<% end -%>
 <% @include.each do |inc| %>
   Include {
-    <% if @inc[1] %>
-      Options { 
-      <% @inc[1].each do |opt| %>
-        <%= opt %>
-      <% end >
-      }
-    <% end >
-    <% @inc[0].each do |fn| %>
-      <%= fn %>
-    <% end >
+<% if inc[1] -%>
+    Options {
+<% inc[1].each do |opt| -%>
+      <%= opt %>
+<% end -%>
+    }
+<% end -%>
+<% inc[0].each do |fn| -%>
+    File = "<%= fn %>"
+<% end -%>
   }
 <% end %>
-<% @options.each do |opt| %>
+<% if @options -%>
+  Options {
+<% @options.each do |opt| -%>
   <%= opt %>
-<% end %>
-<% @exclude.each do |fn| %>
-  <%= fn %>
-<% end %>
+<% end -%>
+  }
+<% end -%>
+<% if @exclude -%>
+  Exclude {
+<% @exclude.each do |fn| -%>
+    File = "<%= fn %>"
+<% end -%>
+  }
+<% end -%>
 }

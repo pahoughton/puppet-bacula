@@ -3,7 +3,6 @@
 # Copyright (c) 2014 Paul Houghton <paul4hough@gmail.com>
 #
 define bacula::device::file (
-  $name  = undef,
   $device = undef,
   $type = undef,
   $media_type = 'File',
