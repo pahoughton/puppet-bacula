@@ -14,7 +14,10 @@ class bacula::fd (
   ) {
   
   $package = $fd_package ? {
-    undef   => 'bacula-client',
+    undef   => $::operatingsystem ? {
+      'Ubuntu' => 'bacula-fd',
+      default  => 'bacula-client',
+    },
     default => $fd_package,
   }
   $service = 'bacula-fd'

@@ -34,11 +34,15 @@ class bacula::database (
     'postgresql'  => "",
   }
   exec { 'make_db_tables':
-    command     => "/usr/libexec/bacula/make_bacula_tables ${backend} ${db_params}",
+    command     => $::operatingsystem ? {
+      'CentOS'  => "/usr/libexec/bacula/make_${backend}_tables ${db_params}",
+      default   => "/usr/libexec/bacula/make_bacula_tables ${backend} ${db_params}",
+    },
     user        => $backend ? {
       'postgresql' => $user,
       default      => root,
     },
+    notify      => Service[$bacula::dir::service],
     refreshonly => true,
   }
 }

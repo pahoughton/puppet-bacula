@@ -2,18 +2,48 @@
 #
 # Copyright (c) 2014 Paul Houghton <paul4hough@gmail.com>
 #
+# No spaces in subcomponent names.
 class bacula::dir (
-  $db_backend = 'postgresql',
-  $db_host    = 'localhost',
-  $db_user    = 'bacula',
-  $db_pass    = 'bacula',
-  $db_name    = 'bacula',
-  $max_jobs   = 5,
-  $mail_to    = 'root@localhost',
-  $service    = 'bacula-dir',
-  $workdir    = '/var/lib/bacula/work',
-  $sd_host    = undef,
+  $db_backend       = 'postgresql',
+  $db_host          = 'localhost',
+  $db_user          = 'bacula',
+  $db_pass          = 'bacula',
+  $db_name          = 'bacula',
+  $max_jobs         = 5,
+  $mail_to          = 'root@localhost',
+  $workdir          = '/var/lib/bacula/work',
+  $sd_host          = undef,
+  $user             = 'bacula',
+  $group            = 'bacula',
+#  $pg_dumpdir       = undef,
+  $postgresql_user  = 'postgres',
+  $postgresql_group = 'postgres',
   ) {
+  
+  case $::operatingsystem {
+    'Fedora' : {
+      $package    = 'bacula-director'
+      $pg_dumpdir = '/var/lib/pgsql/backups'
+      $service    = 'bacula-dir'
+    }
+    'CentOS' : {
+      $package    = "bacula-director-${db_backend}"
+      $pg_dumpdir = '/var/lib/pgsql/backups'
+      $service    = 'bacula-dir'
+    }
+    'Ubuntu' : {
+      case $db_backend {
+        'postgresql' : {
+          $package    = ['bacula-common-pgsql','bacula-director-pgsql']
+        }
+        default : {
+          fail("Ubuntu unsupported db_backend $db_backend")
+        }
+      }
+      $pg_dumpdir = '/var/lib/postgresql/backups'
+      $service    = 'bacula-director'
+    }
+  }
   
   if $db_host == 'localhost' or $db_host == "${::hostname}" {
     class { 'bacula::database' :
@@ -23,12 +53,7 @@ class bacula::dir (
       pass  => $db_pass,
     }
   }
-  
-  if $::operatingsystem == 'Fedora' {
-    $package = 'bacula-director'
-  } else {
-    $package = "bacula-director-${db_backend}"
-  }
+
   package { $package :
     ensure => 'installed',
   }
@@ -37,14 +62,14 @@ class bacula::dir (
           '/var/lib/bacula',
           $workdir,] :
     ensure  => 'directory',
-    owner   => 'bacula',
-    group   => 'bacula',
+    owner   => $user,
+    group   => $group,
   }
     
   file { '/etc/bacula/bacula-dir.conf' :
     ensure  => 'file',
-    owner   => 'bacula',
-    group   => 'bacula',
+    owner   => $user,
+    group   => $group,
     content => template('bacula/bacula-dir.conf.erb'),
     notify  => Service[$service],
     require => Package[$package],
@@ -52,36 +77,45 @@ class bacula::dir (
   
   file { '/etc/bacula/bacula-dir.d' :
     ensure  => 'directory',
-    owner   => 'bacula',
-    group   => 'bacula',
+    owner   => $user,
+    group   => $group,
     before  => Service[$service],
     require => Package[$package],
   }
   file { '/etc/bacula/bacula-dir.d/empty.conf' :
     ensure  => 'file',
-    owner   => 'bacula',
-    group   => 'bacula',
+    owner   => $user,
+    group   => $group,
     content => "# empty\n",
     before  => Service[$service],
   }
 
-  # Postgres Backup Scripts
+  # Postgres Backup Support
+  file { [$pg_dumpdir, "${pg_dumpdir}/fifo"] :
+    ensure  => 'directory',
+    owner   => $postgresql_user,
+    group   => $postgresql_group,
+    mode    => '0775',
+  }
   file { '/etc/bacula/scripts/pgdump.bash' :
     ensure  => 'file',
-    owner   => 'bacula',
-    group   => 'bacula',
+    owner   => $user,
+    group   => $group,
+    mode    => '0555',
     content => template('bacula/pgdump.bash.erb'),
   }
   file { '/etc/bacula/scripts/pgclean.bash' :
     ensure  => 'file',
-    owner   => 'bacula',
-    group   => 'bacula',
+    owner   => $user,
+    group   => $group,
+    mode    => '0555',
     content => template('bacula/pgclean.bash.erb'),
   }
   file { '/etc/bacula/scripts/pglist.bash' :
     ensure  => 'file',
-    owner   => 'bacula',
-    group   => 'bacula',
+    owner   => $user,
+    group   => $group,
+    mode    => '0555',
     content => template('bacula/pglist.bash.erb'),
   }
 
@@ -98,9 +132,20 @@ class bacula::dir (
 
   if $sd_host {
     bacula::dir::storage { 'Default' :
-      sd_host  => "${sd_host}",
-      device   => 'File',
+      sd_host    => "${sd_host}",
+      device     => 'Default',
+      media_type => 'File'
     }
+  }
+  bacula::job { 'Resore' :
+    jtype           => 'Job',
+    client          => "${::hostname}-fd",
+    type            => 'Restore',
+    messages        => "${::hostname}-msg-standard",
+    storage         => 'Default',
+    pool            => 'Default',
+    fileset         => 'FullSet',
+    where           => '/tmp/bacula-restores',
   }
   bacula::job { 'Default' :
     jtype           => 'JobDefs',
@@ -113,13 +158,17 @@ class bacula::dir (
     write_bootstrap => '/var/spool/bacula/%c.bsr',
   }
   bacula::pool { 'Default' :
-    recycle    => 'yes',
-    auto_prune => 'yes',
-    vol_retent => '30 days',
+    recycle       => 'yes',
+    auto_prune    => 'yes',
+    vol_retent    => '30 days',
+    max_vol_bytes => '100G',
+  }
+  bacula::fileset { 'FullSet' :
+    include => [ [ ['/','/home'],['signature = MD5'] ] ],
   }
   bacula::fileset { 'PostgresDefault' :
     include => [ [ ['/var/lib/pgsql/backups/globalobjects.dump',
-                    '|/etc/bacula/scripts/pglist.bash',
+                    "|su -c '/etc/bacula/scripts/pglist.bash' - postgres",
                     ],
                    ['compression = GZIP9',
                     'signature = MD5',
