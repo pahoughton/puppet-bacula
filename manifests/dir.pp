@@ -88,6 +88,7 @@ class bacula::dir (
     group   => $group,
     content => "# empty\n",
     before  => Service[$service],
+    require => Package[$package],
   }
 
   # Postgres Backup Support
@@ -103,6 +104,7 @@ class bacula::dir (
     group   => $group,
     mode    => '0555',
     content => template('bacula/pgdump.bash.erb'),
+    require => Package[$package],
   }
   file { '/etc/bacula/scripts/pgclean.bash' :
     ensure  => 'file',
@@ -110,6 +112,7 @@ class bacula::dir (
     group   => $group,
     mode    => '0555',
     content => template('bacula/pgclean.bash.erb'),
+    require => Package[$package],
   }
   file { '/etc/bacula/scripts/pglist.bash' :
     ensure  => 'file',
@@ -117,6 +120,7 @@ class bacula::dir (
     group   => $group,
     mode    => '0555',
     content => template('bacula/pglist.bash.erb'),
+    require => Package[$package],
   }
 
   service { $service :

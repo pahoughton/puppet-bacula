@@ -49,17 +49,6 @@ define bacula::device::file (
   $max_part = undef,
   $template  = 'bacula/device.conf.erb',
   ) {
-  if $media_type == 'File' {
-    exec { "mkdir -p ${device}" :
-      command => "/bin/mkdir -p '${device}'",
-      creates => "${device}",
-    }->
-    file { $device :
-      owner  => 'bacula',
-      group  => 'tape',
-      mode   => '0775',
-    }
-  }
     
   bacula::device { "$title" :
     name  => $name ,
