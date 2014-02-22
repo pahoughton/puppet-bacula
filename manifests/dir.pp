@@ -18,6 +18,7 @@ class bacula::dir (
 #  $pg_dumpdir       = undef,
   $postgresql_user  = 'postgres',
   $postgresql_group = 'postgres',
+  $gitolite_host    = undef
   ) {
   
   case $::operatingsystem {
@@ -189,6 +190,12 @@ class bacula::dir (
     }
     default : {
       fail( "unsupport db backend: ${db_backend}" )
+    }
+  }
+
+  if $gitolite_host {
+    bacula::jobdefs::gitolite { 'gitolite' :
+      client => $gitolite_host,
     }
   }
 }
