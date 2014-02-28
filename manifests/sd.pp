@@ -3,18 +3,27 @@
 # Copyright (c) 2014 Paul Houghton <paul4hough@gmail.com>
 #
 class bacula::sd (
-  $dir_host = undef,
-  $workdir  = '/var/lib/bacula/work',
-  $max_jobs = 2,
-  $packages = undef,
-  $service  = 'bacula-sd',
-  $default  = '/var/lib/bacula/backups',
-  $template = 'bacula/bacula-sd.conf.erb'
+  $dir_host   = undef,
+  $work_dir    = '/var/lib/bacula/work',
+  $max_jobs   = 2,
+  $packages   = undef,
+  $service    = 'bacula-sd',
+  $user       = 'bacula',
+  $group      = 'bacula',
+  $default    = '/var/lib/bacula/backups',
+  $auto_label = undef,
+  $is_dir     = true,
+  $template   = 'bacula/bacula-sd.conf.erb'
   ) {
+
+  File {
+    owner   => $user,
+    group   => $group,
+  }
   
-  exec { "mkdir -p ${workdir} - bacula::sd" :
+  exec { "mkdir -p ${work_dir} - bacula::sd" :
     command => "/bin/mkdir -p '${workdir}'",
-    creates => "${workdir}",
+    creates => $work_dir,
   }
   if $packages == undef {
     case $::operatingsystem {
@@ -36,27 +45,33 @@ class bacula::sd (
   package { $sd_packages:
     ensure => installed,
   }
- 
+
+  if !$is_dir {
+    file { ['/var/run/bacula',
+            '/var/lib/bacula',
+            ] :
+              ensure  => 'directory',
+    }
+  }
+  file { $default :
+    ensure  => 'directory',
+    owner   => $user,
+    group   => $group,
+  }
   file { '/etc/bacula/bacula-sd.conf':
     ensure  => file,
-    owner   => 'bacula',
-    group   => 'bacula',
     content => template($template),
     notify  => Service[$service],
-    require => Package[$sd_packages],
+    require => Package[$sd_packages]
   }
 
   file { '/etc/bacula/bacula-sd.d':
     ensure => directory,
-    owner  => 'bacula',
-    group  => 'bacula',
     before => Service[$service],
     require => Package[$sd_packages]
   }->
   file { '/etc/bacula/bacula-sd.d/empty.conf' :
     ensure  => 'file',
-    owner   => 'bacula',
-    group   => 'bacula',
     content => "# empty\n",
     before  => Service[$service],
   }
@@ -64,11 +79,15 @@ class bacula::sd (
   service { $service :
     ensure     => 'running',
     enable     => true,
-    require    => Package[$sd_packages],
+    require    => [Package[$sd_packages],File['/var/run/bacula']]
   }
   if $default {
     bacula::device::file { 'Default' :
       device => $default,
+      label_media => $auto_label ? {
+        true    => 'Yes',
+        default => undef,
+      },
     }
   }
 }

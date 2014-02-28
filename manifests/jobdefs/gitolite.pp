@@ -5,12 +5,12 @@
 define bacula::jobdefs::gitolite (
   $client,
   $basedir = '/var/lib/gitolite',
-  $pool = undef,
-  $fileset = 'gitolite,
-  $sched = undef
+  $pool    = undef,
+  $fileset = 'gitolite',
+  $sched   = undef
   ) {
 
-  bacula::filesets::gitolite {
+  class { bacula::filesets::gitolite :
     basedir        => $basedir,
   }->
   bacula::job { $title :

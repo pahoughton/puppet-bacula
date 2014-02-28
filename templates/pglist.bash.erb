@@ -7,7 +7,7 @@
 
 DUMPDIR="<%= @pg_dumpdir %>" #/var/lib/pgsql/backups
 FIFODIR="$DUMPDIR/fifo"
-for dbname in `psql -d template1 -q -U postgres -t  <<EOF
+for dbname in `psql -d template1 -q -t  <<EOF
 select datname from pg_database where not datname in ('template0') order by datname;
 EOF
 `

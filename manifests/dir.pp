@@ -11,14 +11,14 @@ class bacula::dir (
   $db_name          = 'bacula',
   $max_jobs         = 5,
   $mail_to          = 'root@localhost',
-  $workdir          = '/var/lib/bacula/work',
+  $work_dir         = '/var/lib/bacula/work',
+  $restore_dir      = '/var/lib/bacula/restore',
   $sd_host          = undef,
   $user             = 'bacula',
   $group            = 'bacula',
 #  $pg_dumpdir       = undef,
   $postgresql_user  = 'postgres',
   $postgresql_group = 'postgres',
-  $gitolite_host    = undef
   ) {
   
   case $::operatingsystem {
@@ -61,7 +61,8 @@ class bacula::dir (
   file { ['/etc/bacula/scripts',
           '/var/run/bacula',
           '/var/lib/bacula',
-          $workdir,] :
+          $work_dir,
+          $restore_dir,] :
     ensure  => 'directory',
     owner   => $user,
     group   => $group,
@@ -131,10 +132,9 @@ class bacula::dir (
   class { 'bacula::fd' :
     dir_host => $::hostname,
   }
+  bacula::dir::client { $::hostname : }
   class { 'bacula::bconsole' : }
     
-  bacula::dir::client { $::hostname : }
-
   if $sd_host {
     bacula::dir::storage { 'Default' :
       sd_host    => "${sd_host}",
@@ -144,17 +144,18 @@ class bacula::dir (
   }
   bacula::job { 'Resore' :
     jtype           => 'Job',
-    client          => "${::hostname}-fd",
+    client          => $::hostname,
     type            => 'Restore',
     messages        => "${::hostname}-msg-standard",
     storage         => 'Default',
     pool            => 'Default',
     fileset         => 'FullSet',
-    where           => '/tmp/bacula-restores',
+    where           => $restore_dir,
+    write_bootstrap => '/var/spool/bacula/%c.bsr',
   }
   bacula::job { 'Default' :
     jtype           => 'JobDefs',
-    client          => "${::hostname}-fd",
+    client          => $::hostname,
     type            => 'Backup',
     messages        => "${::hostname}-msg-standard",
     storage         => 'Default',
@@ -167,35 +168,32 @@ class bacula::dir (
     auto_prune    => 'yes',
     vol_retent    => '30 days',
     max_vol_bytes => '100G',
+    label_format  => "${::hostname}.backup.vol.",
   }
   bacula::fileset { 'FullSet' :
     include => [ [ ['/','/home'],['signature = MD5'] ] ],
   }
   bacula::fileset { 'PostgresDefault' :
     include => [ [ ['/var/lib/pgsql/backups/globalobjects.dump',
-                    "|su -c '/etc/bacula/scripts/pglist.bash' - postgres",
+                    "|/etc/bacula/scripts/pglist.bash",
                     ],
-                   ['compression = GZIP9',
-                    'signature = MD5',
+                   ['signature = MD5',
                     'readfifo = yes']
                    ],
                ],
   }
-
+  sudo::conf { 'bacula-postgres' :
+    priority => 10,
+    content  => 'bacula ALL = (postgres) NOPASSWD: ALL',
+  }
   case $db_backend {
     'postgresql' : {
       bacula::jobdefs::postgresql { "Postgres-${::hostname}" :
-        client => "${::hostname}-fd",
+        client => $::hostname,
       }
     }
     default : {
       fail( "unsupport db backend: ${db_backend}" )
-    }
-  }
-
-  if $gitolite_host {
-    bacula::jobdefs::gitolite { 'gitolite' :
-      client => $gitolite_host,
     }
   }
 }

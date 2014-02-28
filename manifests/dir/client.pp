@@ -9,7 +9,6 @@ define bacula::dir::client (
   $j_retention = '60 days',
   $auto_prune  = 'yes',
   $max_jobs    = '5',
-  $dir_service = 'bacula-dir',
   $template    = 'bacula/client.conf.erb',
   ) {
   

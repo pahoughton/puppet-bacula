@@ -3,17 +3,21 @@
 # Copyright (c) 2014 Paul Houghton <paul4hough@gmail.com>
 #
 class bacula::database (
+  $srv_pass = undef,
   $backend  = 'postgresql',
-  $srv_pass = 'psql',
   $user     = 'bacula',
   $pass     = 'bacula',
 ) {
 
   case $backend {
     'postgresql' : {
-      class { 'postgresql::server' :
-        postgres_password  => $srv_pass,
-        listen_addresses   => '*',
+      
+      if ! $postgresql::server::postgres_password and $srv_pass {
+        
+        class { 'postgresql::server' :
+          postgres_password  => $srv_pass,
+          listen_addresses   => '*',
+        }
       }
       postgresql::server::db { $name :
         owner    => $user,

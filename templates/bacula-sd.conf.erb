@@ -8,7 +8,7 @@
 # Director through which we'll send our messages (will be the same) one.
 Director {
   Name = "<%= @dir_host -%>-dir"
-  Password = "<%= @dir_host -%>-sd-pass"
+  Password = "<%= @hostname -%>-sd-pass"
 }
 
 Messages {
@@ -19,7 +19,7 @@ Messages {
 # Configure the basic details for the Storage Daemon on this server
 Storage {
   Name = "<%= @hostname -%>-sd"
-  Working Directory = "<%= @workdir %>"
+  Working Directory = "<%= @work_dir %>"
   PID Directory = "/var/run/bacula"
   Maximum Concurrent Jobs = <%= @max_jobs %>
 }
