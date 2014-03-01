@@ -53,11 +53,6 @@ class bacula::sd (
               ensure  => 'directory',
     }
   }
-  file { $default :
-    ensure  => 'directory',
-    owner   => $user,
-    group   => $group,
-  }
   file { '/etc/bacula/bacula-sd.conf':
     ensure  => file,
     content => template($template),
