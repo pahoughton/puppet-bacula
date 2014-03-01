@@ -74,7 +74,7 @@ class bacula::sd (
   service { $service :
     ensure     => 'running',
     enable     => true,
-    require    => [Package[$sd_packages],File['/var/run/bacula']]
+    require    => [Package[$sd_packages]]
   }
   if $default {
     bacula::device::file { 'Default' :
