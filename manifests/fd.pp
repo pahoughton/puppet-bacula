@@ -35,7 +35,7 @@ class bacula::fd (
   }
 
   if $fd_only {
-    file { [$configdir,$rundir,$libdir,] :
+    file { [$configdir,$piddir,$libdir,] :
       ensure  => 'directory',
       mode    => '0755',
     }
