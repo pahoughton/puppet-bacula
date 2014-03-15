@@ -11,9 +11,9 @@ define bacula::dir::client (
   $max_jobs    = '5',
   $template    = 'bacula/client.conf.erb',
   ) {
-  
+
   $fd_host = $name ? {
-    undef   => "${title}",
+    undef   => $title,
     default => $name,
   }
 

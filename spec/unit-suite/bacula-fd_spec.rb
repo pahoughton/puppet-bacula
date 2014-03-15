@@ -10,7 +10,6 @@ $os_family = {
   'Ubuntu' => 'debian',
 }
 ['Fedora','CentOS','Ubuntu'].each { |os|
-
   describe 'bacula::fd', :type => :class do
     context "supports operating system #{os}" do
       let(:facts) do {
@@ -19,15 +18,16 @@ $os_family = {
           :hostname => 'testhost',
       } end
 
+      configdir='/etc/bacula'
       dirhost='bactestdir'
       context "with dir_host => #{dirhost}" do
         let :params do {
-          :dir_host => 'bacdir',
+          :dir_host => dirhost,
         } end
 
-        it { should contain_file("/etc/bacula/bacula-fd.conf").
-          with({ 'ensure' => 'file',
-               'content' => /dirhost/, })
+        it { should contain_file("#{configdir}/bacula-fd.conf").
+          with_ensure('file').
+          with_content(/#{dirhost}/)
         }
         it { should contain_service('bacula-fd').
           with({ 'ensure' => 'running',

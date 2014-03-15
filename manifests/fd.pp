@@ -5,33 +5,39 @@
 # This is installed on the client
 
 class bacula::fd (
-  $dir_host   = undef,
+  $dir_host,
+  $configdir  = '/etc/bacula',
+  $rundir     = '/var/run/bacula',
+  $libdir     = '/var/lib/bacula',
   $workdir    = '/var/lib/bacula/work',
-  $piddir     = '/var/run/',
-  $fd_package = undef,
-  $template   = 'bacula/bacula-fd.conf.erb',
+  $package    = undef,
   $max_jobs   = 2,
+  $service    = 'bacula-fd',
+  $template   = 'bacula/bacula-fd.conf.erb',
   ) {
-  
-  $package = $fd_package ? {
-    undef   => $::operatingsystem ? {
-      'Ubuntu' => 'bacula-fd',
-      default  => 'bacula-client',
-    },
-    default => $fd_package,
-  }
-  $service = 'bacula-fd'
 
-  package { $package :
+  $fd_package = $package ? {
+    undef   => $::osfamily ? {
+      'debian' => 'bacula-fd',
+      'RedHat' => 'bacula-client',
+    },
+    default => $package,
+  }
+
+  package { $fd_package :
     ensure => 'installed',
   }
-  
+
   exec { "mkdir -p ${workdir} - bacula::fd" :
     command => "/bin/mkdir -p '${workdir}'",
-    creates => "${workdir}",
+    creates => $workdir,
   }
 
-  file { '/etc/bacula/bacula-fd.conf' :
+  file { [$configdir,$rundir,$libdir,] :
+    ensure  => 'directory',
+    mode    => '0755',
+  }
+  file { "${configdir}/bacula-fd.conf" :
     ensure  => 'file',
     content => template($template),
     notify  => Service[$service],
@@ -40,6 +46,6 @@ class bacula::fd (
   service { $service :
     ensure  => 'running',
     enable  => true,
-    require => File['/etc/bacula/bacula-fd.conf'],
+    require => File["${configdir}/bacula-fd.conf"],
   }
 }

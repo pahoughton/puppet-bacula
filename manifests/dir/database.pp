@@ -2,8 +2,8 @@
 #
 # Copyright (c) 2014 Paul Houghton <paul4hough@gmail.com>
 #
-class bacula::database (
-  $srv_pass = undef,
+class bacula::dir::database (
+  $srv_pass,
   $backend  = 'postgresql',
   $user     = 'bacula',
   $pass     = 'bacula',
@@ -11,9 +11,9 @@ class bacula::database (
 
   case $backend {
     'postgresql' : {
-      
+
       if ! $postgresql::server::postgres_password and $srv_pass {
-        
+
         class { 'postgresql::server' :
           postgres_password  => $srv_pass,
           listen_addresses   => '*',
@@ -31,21 +31,23 @@ class bacula::database (
       fail("unsupported db backend: ${backend}")
     }
   }
-  
+
   $db_params = $backend ? {
     'sqlite'      => '',
-    'mysql'       => "--user=${user} --password=${passw}",
-    'postgresql'  => "",
+    'mysql'       => "--user=${user} --password=${pass}",
+    'postgresql'  => '',
   }
-  exec { 'make_db_tables':
-    command     => $::operatingsystem ? {
-      'CentOS'  => "/usr/libexec/bacula/make_${backend}_tables ${db_params}",
-      default   => "/usr/libexec/bacula/make_bacula_tables ${backend} ${db_params}",
-    },
-    user        => $backend ? {
-      'postgresql' => $user,
-      default      => root,
-    },
+  $make_db_tables_command = $::operatingsystem ? {
+    'CentOS'  => "/usr/libexec/bacula/make_${backend}_tables ${db_params}",
+    default   => "/usr/libexec/bacula/make_bacula_tables ${backend} ${db_params}",
+  }
+  $make_db_tables_user = $backend ? {
+    'postgresql' => $user,
+    default      => root,
+  }
+  exec { $make_db_tables_command :
+    command     => $make_db_tables_command,
+    user        => $make_db_tables_user,
     notify      => Service[$bacula::dir::service],
     refreshonly => true,
   }

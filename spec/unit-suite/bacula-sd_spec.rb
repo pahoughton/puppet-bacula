@@ -22,12 +22,12 @@ $os_family = {
       dirhost='bactestdir'
       context "with dir_host => #{dirhost}" do
         let :params do {
-          :dir_host => 'bacdir',
+          :dir_host => dirhost,
         } end
 
         it { should contain_file("/etc/bacula/bacula-sd.conf").
-          with({ 'ensure' => 'file',
-               'content' => /dirhost/, })
+          with_ensure('file').
+          with_content(/#{dirhost}/)
         }
         it { should contain_service('bacula-sd').
           with({ 'ensure' => 'running',

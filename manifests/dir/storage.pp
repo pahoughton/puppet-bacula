@@ -16,7 +16,7 @@ define bacula::dir::storage (
   ) {
 
   $sd_name = $title
-  
+
   $sd_pass = $pass ? {
     undef    => "${sd_host}-sd-pass",
     default  => $pass,
@@ -27,5 +27,5 @@ define bacula::dir::storage (
     notify  => Service[$bacula::dir::service],
     require => File['/etc/bacula/bacula-dir.d'],
   }
-  
+
 }

@@ -2,15 +2,15 @@
 #
 # Copyright (c) 2014 Paul Houghton <paul4hough@gmail.com>
 #
-class bacula::filesets::gitolite(
+class bacula::dir::filesets::gitolite(
   $basedir = '/var/lib/gitolite'
   ) {
   bacula::fileset { 'gitolite' :
-    include  => [ [[$basedir],
-                   ['compression = GZIP9',
-                    'signature = MD5',
+    include  => [ [ [$basedir],
+                    [ 'compression = GZIP9',
+                      'signature = MD5',
+                      ],
                     ],
-                   ],
                   ],
   }
 }

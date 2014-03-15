@@ -2,7 +2,7 @@
 #
 # Copyright (c) 2014 Paul Houghton <paul4hough@gmail.com>
 #
-define bacula::job (
+define bacula::dir::job (
   $client,
   $fileset = undef,
   $jtype = 'Job',
@@ -60,7 +60,7 @@ define bacula::job (
   ) {
 
   $job = $name ? {
-    undef   => "${title}",
+    undef   => $title,
     default => $name,
   }
 

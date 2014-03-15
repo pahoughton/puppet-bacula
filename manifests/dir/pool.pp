@@ -2,7 +2,9 @@
 #
 # Copyright (c) 2014 Paul Houghton <paul4hough@gmail.com>
 #
-define bacula::pool (
+define bacula::dir::pool (
+  $confdir = '/etc/bacula',
+  $type = 'Backup'
   $storage = undef,
   $use_once = undef,
   $max_vol_jobs = undef,
@@ -22,18 +24,17 @@ define bacula::pool (
   $label_format = undef,
   $template = 'bacula/pool.conf.erb'
   ) {
-  $type = 'Backup'
-  
+
   $pool = $name ? {
-    undef   => "${title}",
+    undef   => $title,
     default => $name,
   }
 
-  file { "/etc/bacula/bacula-dir.d/pool-${pool}.conf" :
+  file { "${confdir}/dir.d/pool-${pool}.conf" :
     ensure  => 'file',
     content => template($template),
     notify  => Service[$bacula::dir::service],
-    require => File['/etc/bacula/bacula-dir.d'],
+    require => File["${confdir}/bacula/dir.d"],
   }
 
 }

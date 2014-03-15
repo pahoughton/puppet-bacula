@@ -2,26 +2,22 @@
 #
 # Copyright (c) 2014 Paul Houghton <paul_houghton@cable.comcast.com>
 #
-define bacula::jobdefs::postgresql (
+define bacula::dir::jobdefs::postgresql (
   $client,
-  $pool = undef,
+  $libdir  = '/var/lib/bacula',
+  $pool    = undef,
   $fileset = undef,
-  $sched = undef
+  $sched   = 'WeeklyCycle',
+  $fileset = 'PostgresDefault',
   ) {
   bacula::job { $title :
     client         => $client,
     level          => 'Full',
     jobdefs        => 'Default',
     pool           => $pool,
-    fileset        => $fileset ? {
-      undef   => 'PostgresDefault',
-      default => $fileset,
-    },
-    sched          => $sched ? {
-      undef   => 'WeeklyCycle',
-      default => $sched,
-    },
-    client_before  => "su -c '/etc/bacula/scripts/pgdump.bash' - postgres",
-    client_after   => "su -c '/etc/bacula/scripts/pgclean.bash' - postgres",
+    fileset        => $fileset,
+    sched          => $sched
+    client_before  => "su -c '${libdir}/scripts/pgdump.bash' - postgres",
+    client_after   => "su -c '${libdir}/scripts/pgclean.bash' - postgres",
   }
 }

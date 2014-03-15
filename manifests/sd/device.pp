@@ -2,7 +2,8 @@
 #
 # Copyright (c) 2014 Paul Houghton <paul4hough@gmail.com>
 #
-define bacula::device (
+define bacula::sd::device (
+  $configdir = '/etc/bacula',
   $device= undef,
   $type= undef,
   $media_type= undef,
@@ -51,13 +52,13 @@ define bacula::device (
   ) {
 
   $devname = $name ? {
-    undef   => "${title}",
-    default => "${name}",
+    undef   => $title,
+    default => $name,
   }
-  file { "/etc/bacula/bacula-sd.d/device-${devname}.conf" :
+  file { "${configdir}/sd.d/device-${devname}.conf" :
     ensure  => 'file',
     content => template($template),
     notify  => Service[$bacula::sd::service],
-    require => File['/etc/bacula/bacula-sd.d'],
+    require => File['/etc/bacula/sd.d'],
   }
 }
