@@ -4,53 +4,36 @@
 #
 require 'spec_helper'
 
-describe 'bacula::sd', :type => :class do
-  describe 'Fedora 20' do 
-    let :facts do
-      {
-        :osfamily => 'RedHat',
-        :operatingsystem => 'Fedora',
-        :operatingsystemrelease => '20',
-        :hostname => 'bachost',
-      }
-    end
-    
-    describe 'with parameters' do
-      let :params do
-        {
+$os_family = {
+  'Fedora' => 'redhat',
+  'CentOS' => 'redhat',
+  'Ubuntu' => 'debian',
+}
+['Fedora','CentOS','Ubuntu'].each { |os|
+
+  describe 'bacula::sd', :type => :class do
+    context "supports operating system #{os}" do
+      let(:facts) do {
+          :osfamily  => $os_family[os],
+          :operatingsystem => os,
+          :hostname => 'testhost',
+      } end
+
+      dirhost='bactestdir'
+      context "with dir_host => #{dirhost}" do
+        let :params do {
           :dir_host => 'bacdir',
+        } end
+
+        it { should contain_file("/etc/bacula/bacula-sd.conf").
+          with({ 'ensure' => 'file',
+               'content' => /dirhost/, })
         }
-      end
-      
-      it 'should create config file' do
-        should contain_file("/etc/bacula/bacula-sd.conf").with({
-          :ensure => 'file',
-        })
+        it { should contain_service('bacula-sd').
+          with({ 'ensure' => 'running',
+                 'enable' => true, })
+        }
       end
     end
   end
-  describe 'CentOS' do 
-    let :facts do
-      {
-        :osfamily => 'RedHat',
-        :operatingsystem => 'CentOS',
-        :operatingsystemrelease => '6.0',
-        :hostname => 'bachost',
-      }
-    end
-    
-    describe 'with parameters' do
-      let :params do
-        {
-          :dir_host => 'bacdir',
-        }
-      end
-      
-      it 'should create config file' do
-        should contain_file("/etc/bacula/bacula-sd.conf").with({
-          :ensure => 'file',
-        })
-      end
-    end
-  end
-end
+}
