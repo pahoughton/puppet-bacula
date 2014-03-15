@@ -62,14 +62,17 @@ class bacula::dir (
 
   if $db_host == 'localhost' or $db_host == $::hostname {
     class { 'bacula::dir::database' :
-      backend => $db_backend,
-      name    => $db_name,
-      user    => $db_user,
-      pass    => $db_pass,
+      srv_pass => 'psql',
+      backend  => $db_backend,
+      name     => $db_name,
+      user     => $db_user,
+      pass     => $db_pass,
     }
   }
 
-  file { ["${configdir}/scripts",
+  file { [$configdir,
+          "${configdir}/scripts",
+          $homedir,
           $rundir,
           $libdir,
           $workdir,
@@ -181,7 +184,7 @@ class bacula::dir (
   }
   case $db_backend {
     'postgresql' : {
-      bacula::jobdefs::postgresql { "Postgres-${::hostname}" :
+      bacula::dir::jobdefs::postgresql { "Postgres-${::hostname}" :
         client => $::hostname,
       }
     }

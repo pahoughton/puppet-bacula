@@ -29,22 +29,20 @@ describe 'bacula::dir::pool', :type => :define do
     let (:title) {title}
     context "default params" do
       it { should contain_bacula__dir__pool(title) }
-      it { should contain_file("#{configdir}/bacula-dir.d/pool-#{title}.conf").
+      it { should contain_file("#{configdir}/dir.d/pool-#{title}.conf").
         with_ensure('file').
         with_content(/#{title}/)
       }
     end
     tparamval='test Param value'
     $param_list.each { |p|
-      context "param #{p} => '#{tparamval}'" do
-        let :params do {
-            p => tparamval
-          } end
-        it { should contain_file("#{configdir}/bacula-dir.d/pool-#{title}.conf").
-          with_ensure('file').
-          with_content(/#{tparamval}/)
-        }
-      end
+      let :params do {
+          p => tparamval
+        } end
+      it { should contain_file("#{configdir}/dir.d/pool-#{title}.conf").
+        with_ensure('file').
+        with_content(/#{tparamval}/)
+      }
     }
   end
 end

@@ -7,12 +7,13 @@
 class bacula::fd (
   $dir_host,
   $configdir  = '/etc/bacula',
-  $rundir     = '/var/run/bacula',
+  $piddir     = '/var/run/bacula',
   $libdir     = '/var/lib/bacula',
-  $workdir    = '/var/lib/bacula/work',
+  $workdir    = '/srv/bacula/work',
   $package    = undef,
   $max_jobs   = 2,
   $service    = 'bacula-fd',
+  $fd_only    = false,
   $template   = 'bacula/bacula-fd.conf.erb',
   ) {
 
@@ -33,9 +34,11 @@ class bacula::fd (
     creates => $workdir,
   }
 
-  file { [$configdir,$rundir,$libdir,] :
-    ensure  => 'directory',
-    mode    => '0755',
+  if $fd_only {
+    file { [$configdir,$rundir,$libdir,] :
+      ensure  => 'directory',
+      mode    => '0755',
+    }
   }
   file { "${configdir}/bacula-fd.conf" :
     ensure  => 'file',

@@ -10,13 +10,13 @@ define bacula::dir::jobdefs::postgresql (
   $sched   = 'WeeklyCycle',
   $fileset = 'PostgresDefault',
   ) {
-  bacula::job { $title :
+  bacula::dir::job { $title :
     client         => $client,
     level          => 'Full',
     jobdefs        => 'Default',
     pool           => $pool,
     fileset        => $fileset,
-    sched          => $sched
+    sched          => $sched,
     client_before  => "su -c '${libdir}/scripts/pgdump.bash' - postgres",
     client_after   => "su -c '${libdir}/scripts/pgclean.bash' - postgres",
   }

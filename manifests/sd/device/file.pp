@@ -51,7 +51,7 @@ define bacula::sd::device::file (
   ) {
 
   bacula::sd::device { $title :
-    name          => $name
+    name          => $name,
     device        => $device,
     type          => $type,
     media_type    => $media_type,
