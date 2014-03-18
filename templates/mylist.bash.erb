@@ -1,0 +1,24 @@
+#!/bin/sh
+# mylist.bash.erb - 2014-03-17 16:17
+#
+# Copyright (c) 2014 Paul Houghton <paul4hough@gmail.com>
+#
+# = Manageged by puppet - do NOT edit =
+#
+usage='
+$@
+
+list database dump fifos for use by bacula backup. These fifos are written
+by the mydump.base script
+'
+[ -n "$1" ] && echo $usage && exit 1
+
+dumpdir="<%= @my_dumpdir %>" # @workdir/mysql
+fifodir="$dumpdir/fifo"
+
+for dbname in `mysql -s information_schema << EOI
+select schema_name from SCHEMATA where schema_name not in ('mysql', 'test', 'performance_schema');
+EOI
+` ; do
+  echo "$fifodir/$dbname.data.dump"
+done

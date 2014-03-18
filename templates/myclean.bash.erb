@@ -1,0 +1,26 @@
+#!/bin/sh
+# myclean.bash.erb - 2014-03-17 16:32
+#
+# Copyright (c) 2014 Paul Houghton <paul4hough@gmail.com>
+#
+# = Manageged by puppet - do NOT edit =
+#
+exec > /dev/null # don't ask
+usage='
+$@
+
+For each database, remove fifo used by bacula to read and perform
+backups through
+
+'
+[ -n "$1" ] && echo $usage && exit 1
+
+dumpdir="<%= @my_dumpdir %>" @workdir/mysql
+fifodir="$dumpdir/fifo"
+
+for dbname in `mysql -s information_schema << EOI
+select schema_name from SCHEMATA where schema_name not in ('mysql', 'test', 'performance_schema');
+EOI
+`  ; do
+ rm -f "${fifodir}/${dbname}.data.dump"
+done
