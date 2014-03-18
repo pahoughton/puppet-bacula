@@ -33,6 +33,12 @@ $os_family = {
           with({ 'ensure' => 'running',
                  'enable' => true, })
         }
+        it { should contain_file('/var/lib/bacula/scripts/pglist.bash') }
+        it { should contain_file('/var/lib/bacula/scripts/pgdump.bash') }
+        it { should contain_file('/var/lib/bacula/scripts/pgclean.bash') }
+        it { should contain_file('/var/lib/bacula/scripts/mylist.bash') }
+        it { should contain_file('/var/lib/bacula/scripts/mydump.bash') }
+        it { should contain_file('/var/lib/bacula/scripts/myclean.bash') }
       end
     end
   end

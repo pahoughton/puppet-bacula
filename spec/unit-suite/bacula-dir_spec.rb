@@ -6,63 +6,76 @@
 #
 require 'spec_helper'
 
-# describe 'bacula director server deployment' do
-  $os_rel = {
-    'Fedora' => '20',
-    'CentOS' => '6.',
-    'Ubuntu' => '13.10',
-  }
-  $os_family = {
-    'Fedora' => 'RedHat',
-    'CentOS' => 'RedHat',
-    'Ubuntu' => 'Debian',
-  }
+os_service = {
+  'Fedora' => 'bacula-dir',
+  'CentOS' => 'bacula-dir',
+  'Ubuntu' => 'bacula-director',
+}
+os_rel = {
+  'Fedora' => '20',
+  'CentOS' => '6.',
+  'Ubuntu' => '13.10',
+}
+os_family = {
+  'Fedora' => 'RedHat',
+  'CentOS' => 'RedHat',
+  'Ubuntu' => 'Debian',
+}
 
-  ['Fedora','CentOS','Ubuntu'].each { |os|
-    describe 'bacula::dir', :type => :class do
-      context "supports operating system #{os}" do
-        let(:facts) do {
-            :osfamily               => $os_family[os],
-            :operatingsystem        => os,
-            :operatingsystemrelease => $os_rel[os],
-            :concat_basedir         => 'fixmefor-postgresql',
-            :hostname               => 'testdirhost',
-          } end
+tobject = 'bacula::dir'
+['Fedora','CentOS','Ubuntu'].each { |os|
+  confdir = '/etc/bacula'
+  describe tobject, :type => :class do
+    tfacts = {
+      :osfamily               => os_family[os],
+      :operatingsystem        => os,
+      :operatingsystemrelease => os_rel[os],
+      :os_maj_version         => os_rel[os],
+      :kernel                 => 'Linux',
+      :concat_basedir         => '4postgresql',
+      :hostname               => 'tester',
+    }
+    let(:facts) do tfacts end
+    context "supports facts #{tfacts}" do
+      context 'default params' do
+        it { should contain_class('bacula::dir') }
 
-        context 'default params' do
-          it { should contain_class('bacula::dir') }
-
-          ['/etc/bacula',
-           '/srv/bacula',
-           '/srv/bacula/work',
-           '/srv/bacula/restore',].each { |dir|
-            it { should contain_file(dir).
-              with( 'ensure' => 'directory',
-                    'mode'   => '0750' )
-            }
-
+        ['/etc/bacula',
+         '/srv/bacula',
+         '/srv/bacula/work',
+         '/srv/bacula/restore',].each { |dir|
+          it { should contain_file(dir).
+            with( 'ensure' => 'directory',
+                  'mode'   => '0750' )
+          }
+        }
+        it { should contain_file("#{confdir}/bacula-dir.conf") }
+        it { should contain_file("#{confdir}/dir.d") }
+        it { should contain_service(os_service[os]) }
+        it { should contain_bacula__dir__job('Restore') }
+        it { should contain_bacula__dir__job('Default') }
+        it { should contain_bacula__dir__pool('Default') }
+        it { should contain_bacula__dir__fileset('FullSet') }
+        it { should contain_bacula__dir__jobdefs__postgresql('tester') }
+      end
+      params = {
+        'configdir'  => '/etc-test/bacula',
+        'rundir'     => '/var-test/run/bacula',
+        'libdir'     => '/var-test/lib/bacula',
+        'workdir'    => '/srv-test/bacula/work',
+        'restoredir' => '/srv-test/bacula/restore'
+      }
+      params.each { |p,val|
+        context "with params #{p} => #{val}" do
+          let :params do {
+              p => val,
+            } end
+          it { should contain_file(val).
+            with( 'ensure' => 'directory',
+                  'mode'   => '0750' )
           }
         end
-        params = {
-          'configdir' => '/etc-test/bacula',
-          'rundir'    => '/var-test/run/bacula',
-        }
-        libdir='/var-test/lib/bacula'
-        workdir='/srv-test/bacula/work'
-        backupdir='/srv-test/bacula/backups'
-        restoredir='/srv-test/bacula/restore'
-        params.each { |p,val|
-          context "with params #{p} => #{val}" do
-            let :params do {
-                p => val,
-              } end
-            it { should contain_file(val).
-              with( 'ensure' => 'directory',
-                    'mode'   => '0750' )
-            }
-          end
-        }
-      end
+      }
     end
-  }
-# end
+  end
+}

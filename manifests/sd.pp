@@ -3,12 +3,12 @@
 # Copyright (c) 2014 Paul Houghton <paul4hough@gmail.com>
 #
 class bacula::sd (
-  $dir_host,
+  $dir_host   = $::hostname,
   $configdir  = '/etc/bacula',
   $rundir     = '/var/run/bacula',
   $libdir     = '/var/lib/bacula',
-  $workdir    = '/var/lib/bacula/work',
-  $backupdir  = '/var/lib/bacula/backups',
+  $workdir    = '/srv/bacula/work',
+  $backupdir  = '/srv/bacula/backups',
   $max_jobs   = 2,
   $packages   = undef,
   $service    = 'bacula-sd',
@@ -58,17 +58,12 @@ class bacula::sd (
     notify  => Service[$service],
     require => Package[$sd_packages]
   }
-
-  file { "${configdir}/bacula-sd.d" :
-    ensure  => 'absent',
-    recurse => true,
-  }
   file { "${configdir}/sd.d" :
     ensure  => 'directory',
     before  => Service[$service],
     require => Package[$sd_packages]
   }->
-  file { "${configdir}/bacula-sd.d/empty.conf" :
+  file { "${configdir}/sd.d/empty.conf" :
     ensure  => 'file',
     content => "# empty\n",
     before  => Service[$service],

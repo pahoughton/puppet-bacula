@@ -71,10 +71,10 @@ class bacula::dir (
   }
 
   file { [$configdir,
-          "${configdir}/scripts",
           $homedir,
           $rundir,
           $libdir,
+          "${libdir}/scripts",
           $workdir,
           $restoredir,] :
     ensure  => 'directory',
@@ -86,39 +86,12 @@ class bacula::dir (
     content => template('bacula/bacula-dir.conf.erb'),
   }
 
-  file { "${configdir}/bacula-dir.d" :
+  file { "${configdir}/dir.d" :
     ensure  => 'directory',
   }
-  file { "${configdir}/bacula-dir.d/empty.conf" :
+  file { "${configdir}/dir.d/empty.conf" :
     ensure  => 'file',
     content => "# empty\n",
-  }
-
-  # Postgres Backup Support
-  file { [$pg_dumpdir, "${pg_dumpdir}/fifo"] :
-    ensure  => 'directory',
-    owner   => $postgresql_user,
-    group   => $postgresql_group,
-    mode    => '0775',
-  }
-  # fixme - these belong on any pg backup
-  file { "${libdir}/scripts/pgdump.bash" :
-    ensure  => 'file',
-    mode    => '0555',
-    content => template('bacula/pgdump.bash.erb'),
-    require => Package[$package],
-  }
-  file { "${libdir}/scripts/pgclean.bash" :
-    ensure  => 'file',
-    mode    => '0555',
-    content => template('bacula/pgclean.bash.erb'),
-    require => Package[$package],
-  }
-  file { "${libdir}/scripts/pglist.bash" :
-    ensure  => 'file',
-    mode    => '0555',
-    content => template('bacula/pglist.bash.erb'),
-    require => Package[$package],
   }
 
   service { $service :
@@ -126,7 +99,9 @@ class bacula::dir (
     enable => true,
   }
   class { 'bacula::fd' :
-    dir_host => $::hostname,
+    dir_host      => $::hostname,
+    pgres_support => true,
+    fd_only       => false,
   }
   bacula::dir::client { $::hostname : }
   class { 'bacula::bconsole' : }
@@ -138,7 +113,7 @@ class bacula::dir (
       media_type => 'File'
     }
   }
-  bacula::dir::job { 'Resore' :
+  bacula::dir::job { 'Restore' :
     jtype           => 'Job',
     client          => $::hostname,
     type            => 'Restore',
@@ -168,24 +143,14 @@ class bacula::dir (
   bacula::dir::fileset { 'FullSet' :
     include => [ [ ['/','/home'],['signature = MD5'] ] ],
   }
-  bacula::dir::fileset { 'PostgresDefault' :
-    include => [  [ [ '/var/lib/pgsql/backups/globalobjects.dump',
-                      "|${libdir}/scripts/pglist.bash",
-                      ],
-                    [ 'signature = MD5',
-                      'readfifo = yes'
-                      ],
-                    ],
-                  ],
-  }
-  sudo::conf { 'bacula-postgres' :
-    priority => 10,
-    content  => 'bacula ALL = (postgres) NOPASSWD: ALL',
-  }
+  # sudo::conf { 'bacula-postgres' :
+  #   priority => 10,
+  #   content  => 'bacula ALL = (postgres) NOPASSWD: ALL',
+  # }
   case $db_backend {
     'postgresql' : {
-      bacula::dir::jobdefs::postgresql { "Postgres-${::hostname}" :
-        client => $::hostname,
+      bacula::dir::jobdefs::postgresql { $::hostname :
+        libdir => $libdir
       }
     }
     default : {

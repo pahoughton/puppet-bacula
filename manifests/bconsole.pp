@@ -1,6 +1,6 @@
 # bconsole.pp - 2014-02-17 13:01
 #
-# Copyright (c) 2014 Paul Houghton <paul_houghton@cable.comcast.com>
+# Copyright (c) 2014 Paul Houghton <paul4hough@gmail.com>
 #
 class bacula::bconsole (
   $configdir = '/etc/bacula',

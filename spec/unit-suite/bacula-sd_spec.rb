@@ -4,36 +4,37 @@
 #
 require 'spec_helper'
 
-# fixme - need to have file local vars (static)
-$os_rel = {
+os_rel = {
   'Fedora' => '20',
   'CentOS' => '6.',
   'Ubuntu' => '13.10',
 }
-$os_family = {
+os_family = {
   'Fedora' => 'RedHat',
   'CentOS' => 'RedHat',
   'Ubuntu' => 'Debian',
 }
+tobject = 'bacula::sd'
 ['Fedora','CentOS','Ubuntu'].each { |os|
-
-  describe 'bacula::sd', :type => :class do
-    context "supports operating system #{os}" do
-      let(:facts) do {
-          :osfamily               => $os_family[os],
-          :operatingsystem        => os,
-          :operatingsystemrelease => $os_rel[os],
-          :concat_basedir         => 'fixmefor-postgresql',
-          :hostname               => 'testhost',
-        } end
-
+  confdir = '/etc/bacula'
+  describe tobject, :type => :class do
+    tfacts = {
+      :osfamily               => os_family[os],
+      :operatingsystem        => os,
+      :operatingsystemrelease => os_rel[os],
+      :os_maj_version         => os_rel[os],
+      :kernel                 => 'Linux',
+      :hostname               => 'tester',
+    }
+    let(:facts) do tfacts end
+    context "supports facts #{tfacts}" do
       dirhost='bactestdir'
       context "with dir_host => #{dirhost}" do
         let :params do {
             :dir_host => dirhost,
           } end
 
-        it { should contain_file("/etc/bacula/bacula-sd.conf").
+        it { should contain_file("#{confdir}/bacula-sd.conf").
           with_ensure('file').
           with_content(/#{dirhost}/)
         }
@@ -41,6 +42,8 @@ $os_family = {
           with({ 'ensure' => 'running',
                  'enable' => true, })
         }
+        it { should contain_file("#{confdir}/sd.d") }
+        it { should contain_bacula__sd__device__file('Backupdir') }
       end
     end
   end
