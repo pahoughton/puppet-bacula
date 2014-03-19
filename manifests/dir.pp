@@ -26,10 +26,6 @@ class bacula::dir (
   $postgresql_group = 'postgres',
   ) {
 
-  package { $package :
-    ensure => 'installed',
-  }
-
   case $::operatingsystem {
     'Fedora' : {
       $package    = 'bacula-director'
@@ -52,13 +48,16 @@ class bacula::dir (
     }
   }
 
+  package { $package :
+    ensure => 'installed',
+  }
+
   File {
     owner   => $user,
     group   => $group,
     notify  => Service[$service],
     require => Package[$package],
   }
-
 
   if $db_host == 'localhost' or $db_host == $::hostname {
     class { 'bacula::dir::database' :
@@ -103,7 +102,9 @@ class bacula::dir (
     pgres_support => true,
     fd_only       => false,
   }
-  bacula::dir::client { $::hostname : }
+  bacula::dir::client { $::hostname :
+    configdir => $configdir,
+  }
   class { 'bacula::bconsole' : }
 
   if $sd_host {
