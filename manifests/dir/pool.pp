@@ -3,7 +3,7 @@
 # Copyright (c) 2014 Paul Houghton <paul4hough@gmail.com>
 #
 define bacula::dir::pool (
-  $confdir           = '/etc/bacula',
+  $configdir         = '/etc/bacula',
   $type              = 'Backup',
   $storage           = undef,
   $use_once          = undef,
@@ -30,11 +30,11 @@ define bacula::dir::pool (
     default => $name,
   }
 
-  file { "${confdir}/dir.d/pool-${pool}.conf" :
+  file { "${configdir}/dir.d/pool-${pool}.conf" :
     ensure  => 'file',
     content => template($template),
     notify  => Service[$bacula::dir::service],
-    require => File["${confdir}/bacula/dir.d"],
+    require => File["${configdir}/dir.d"],
   }
 
 }

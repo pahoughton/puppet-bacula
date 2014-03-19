@@ -21,6 +21,6 @@ define bacula::dir::fileset (
     ensure  => 'file',
     content => template($template),
     notify  => Service[$bacula::dir::service],
-    require => File['/etc/bacula/bacula-dir.d'],
+    require => File["${configdir}/dir.d"],
   }
 }

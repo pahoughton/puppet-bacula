@@ -9,6 +9,11 @@ class bacula::dir::database (
   $pass     = 'bacula',
 ) {
 
+  $make_db_tables_command = $::operatingsystem ? {
+    'CentOS'  => "/usr/libexec/bacula/make_${backend}_tables ${db_params}",
+    default   => "/usr/libexec/bacula/make_bacula_tables ${backend} ${db_params}",
+  }
+
   case $backend {
     'postgresql' : {
 
@@ -24,7 +29,7 @@ class bacula::dir::database (
         user     => $user,
         password => $pass,
         require  => Class['postgresql::server'],
-        notify   => Exec['make_db_tables'],
+        notify   => Exec[$make_db_tables_command],
       }
     }
     default : {
@@ -36,10 +41,6 @@ class bacula::dir::database (
     'sqlite'      => '',
     'mysql'       => "--user=${user} --password=${pass}",
     'postgresql'  => '',
-  }
-  $make_db_tables_command = $::operatingsystem ? {
-    'CentOS'  => "/usr/libexec/bacula/make_${backend}_tables ${db_params}",
-    default   => "/usr/libexec/bacula/make_bacula_tables ${backend} ${db_params}",
   }
   $make_db_tables_user = $backend ? {
     'postgresql' => $user,
