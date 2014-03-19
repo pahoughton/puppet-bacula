@@ -35,7 +35,7 @@ Catalog {
 }
 
 # MESSAGES
-# Configure how the directory will log and/or send messages. 
+# Configure how the directory will log and/or send messages.
 Messages {
   Name = "<%= @hostname -%>-msg-standard"
   Mail Command = "/usr/lib/bacula/bsmtp -h localhost -f bacula@<%= @hostname -%> -s \"Bacula %t %e (for %c)\" %r"
@@ -75,4 +75,4 @@ Schedule {
 
 # Finally, bring in all the additional pieces of configuration from the
 # different servers for which this Director was configured to manage
-@|"sh -c 'for f in /etc/bacula/bacula-dir.d/*.conf ; do echo @${f} ; done'"
+@|"sh -c 'for f in <%= @configdir %>/dir.d/*.conf ; do echo @${f} ; done'"
