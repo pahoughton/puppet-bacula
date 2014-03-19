@@ -6,13 +6,13 @@
 #  list fifo's for bacula to read and perform database backup's through.
 #
 
-DUMPDIR="<%= @pg_dumpdir %>" #/var/lib/pgsql/backups
-FIFODIR="$DUMPDIR/fifo"
+dumpdir="<%= @pg_dumpdir %>"
+fifodir="$dumpdir/fifo"
 for dbname in `psql -d template1 -q -t  <<EOF
 select datname from pg_database where not datname in ('template0') order by datname;
 EOF
 `
 do
- echo "$FIFODIR/$dbname.schema.dump"
- echo "$FIFODIR/$dbname.data.dump"
+ echo "$fifodir/$dbname.schema.dump"
+ echo "$fifodir/$dbname.data.dump"
 done

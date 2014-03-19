@@ -9,8 +9,8 @@ class bacula::fd (
   $configdir     = '/etc/bacula',
   $piddir        = '/var/run/bacula',
   $libdir        = '/var/lib/bacula',
-  $workdir       = '/srv/bacula/work',
-  $package       = undef,
+  $datadir       = '/srv/bacula',
+  $fd_packages   = undef,
   $max_jobs      = 2,
   $service       = 'bacula-fd',
   $fd_only       = true,
@@ -21,25 +21,28 @@ class bacula::fd (
   $template      = 'bacula/bacula-fd.conf.erb',
   ) {
 
-  $fd_package = $package ? {
+  $packages = $fd_packages ? {
     undef   => $::osfamily ? {
       'debian' => 'bacula-fd',
       'RedHat' => 'bacula-client',
+      default  => undef,
     },
-    default => $package,
+    default => $fd_packages,
   }
 
-  package { $fd_package :
+  package { $packages :
     ensure => 'installed',
   }
 
-  exec { "mkdir -p ${workdir} - bacula::fd" :
-    command => "/bin/mkdir -p '${workdir}'",
-    creates => $workdir,
-  }
+  $workdir       = "${datadir}/work"
 
   if $fd_only {
-    file { [$configdir,$piddir,$libdir,"${libdir}/scripts",] :
+    file { [$configdir,
+            $piddir,
+            $datadir,
+            $workdir,
+            $libdir,
+            "${libdir}/scripts",] :
       ensure  => 'directory',
       mode    => '0755',
     }
@@ -48,7 +51,7 @@ class bacula::fd (
     ensure  => 'file',
     content => template($template),
     notify  => Service[$service],
-    require => Package[$package],
+    require => Package[$packages],
   }
   service { $service :
     ensure  => 'running',

@@ -7,20 +7,21 @@
 #
 #  Create fifo's for bacula to read and perform database backup's through.
 #
-exec > /dev/null
-DUMPDIR="<%= @pg_dumpdir %>" #/var/lib/pgsql/backups
-FIFODIR="$DUMPDIR/fifo"
+exec > /dev/null # don't ask
+dumpdir="<%= @pg_dumpdir %>"
+fifodir="$DUMPDIR/fifo"
 export PGUSER=postgres
-#export PGPASSWORD=xxxx                       # only when pg_hba.conf requires it
-/usr/bin/pg_dumpall -g >$DUMPDIR/globalobjects.dump   # hopefully never a big file, so no need for a fifo
-rm -f $FIFODIR/*.data.dump
+#export PGPASSWORD=xxxx      # only when pg_hba.conf requires it
+# hopefully never a big file, so no need for a fifo
+/usr/bin/pg_dumpall -g >$DUMPDIR/globalobjects.dump
+rm -f $fifodir/*.data.dump
 for dbname in `psql -d template1 -q -t <<EOF
 select datname from pg_database where not datname in ('template0') order by datname;
 EOF
-` 
+`
 do
- mkfifo $FIFODIR/$dbname.schema.dump
- /usr/bin/pg_dump --format=c -s $dbname --file=$FIFODIR/$dbname.schema.dump 2>&1 < /dev/null & 
- mkfifo $FIFODIR/$dbname.data.dump 
- /usr/bin/pg_dump --format=c -a $dbname --file=$FIFODIR/$dbname.data.dump 2>&1 < /dev/null &
+ mkfifo $fifodir/$dbname.schema.dump
+ /usr/bin/pg_dump --format=c -s $dbname --file=$fifodir/$dbname.schema.dump 2>&1 < /dev/null &
+ mkfifo $fifodir/$dbname.data.dump
+ /usr/bin/pg_dump --format=c -a $dbname --file=$fifodir/$dbname.data.dump 2>&1 < /dev/null &
 done

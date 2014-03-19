@@ -15,7 +15,7 @@ backups through
 '
 [ -n "$1" ] && echo $usage && exit 1
 
-dumpdir="<%= @my_dumpdir %>" @workdir/mysql
+dumpdir="<%= @my_dumpdir %>"
 fifodir="$dumpdir/fifo"
 
 for dbname in `mysql -s information_schema << EOI

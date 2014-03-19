@@ -15,7 +15,7 @@ then read by bacula for backup.
 '
 [ -n "$1" ] && echo $usage && exit 1
 
-dumpdir="<%= @my_dumpdir %>" @workdir/mysql
+dumpdir="<%= @my_dumpdir %>"
 fifodir="$dumpdir/fifo"
 
 rm -f $fifodir/*.data.dump
@@ -24,5 +24,5 @@ select schema_name from SCHEMATA where schema_name not in ('mysql', 'test', 'per
 EOI
 `  ; do
   mkfifo $fifodir/$dbname.data.dump
-  /usr/bin/mysqldump $dbname > $FIFODIR/$dbname.data.dump 2>&1 < /dev/null &
+  /usr/bin/mysqldump $dbname > $fifodir/$dbname.data.dump 2>&1 < /dev/null &
 done
