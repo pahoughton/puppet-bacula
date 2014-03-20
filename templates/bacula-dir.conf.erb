@@ -13,7 +13,7 @@ Director {
   Name = "<%= @hostname -%>-dir"
   Password = "<%= @hostname -%>-dir-pass"
   Query File = "/etc/bacula/query.sql"
-  Working Directory = "<%= @work_dir %>"
+  Working Directory = "<%= @workdir %>"
   PID Directory = "/var/run/bacula"
   Maximum Concurrent Jobs = <%= @max_jobs %>
   Messages = "<%= @hostname -%>-msg-daemon"
