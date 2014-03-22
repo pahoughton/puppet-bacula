@@ -4,6 +4,7 @@
 #
 class bacula::dir::database (
   $srv_pass,
+  $host     = 'localhost',
   $backend  = 'postgresql',
   $user     = 'bacula',
   $pass     = 'bacula',
