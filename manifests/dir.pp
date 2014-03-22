@@ -11,6 +11,7 @@ class bacula::dir (
   $workdir          = '/srv/bacula/work',
   $backupdir        = '/srv/bacula/backups',
   $restoredir       = '/srv/bacula/restore',
+  $db_srv_pass      = undef,
   $db_backend       = 'postgresql',
   $db_host          = 'localhost',
   $db_user          = 'bacula',
@@ -59,14 +60,13 @@ class bacula::dir (
     require => Package[$package],
   }
 
-  if $db_host == 'localhost' or $db_host == $::hostname {
-    class { 'bacula::dir::database' :
-      srv_pass => 'psql',
-      backend  => $db_backend,
-      name     => $db_name,
-      user     => $db_user,
-      pass     => $db_pass,
-    }
+  class { 'bacula::dir::database' :
+    srv_pass => $db_srv_pass,
+    backend  => $db_backend,
+    host     => $db_host,
+    name     => $db_name,
+    user     => $db_user,
+    pass     => $db_pass,
   }
 
   file { [$configdir,
