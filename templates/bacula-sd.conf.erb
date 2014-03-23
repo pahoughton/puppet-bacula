@@ -19,8 +19,8 @@ Messages {
 # Configure the basic details for the Storage Daemon on this server
 Storage {
   Name = "<%= @hostname -%>-sd"
-  Working Directory = "<%= @work_dir %>"
-  PID Directory = "/var/run/bacula"
+  Working Directory = "<%= @workdir %>"
+  PID Directory = "<%= @piddir %>"
   Maximum Concurrent Jobs = <%= @max_jobs %>
 }
 
@@ -28,4 +28,4 @@ Storage {
 # All other Devices are created by the clients that need them - each will
 # prepare their own device and pool configuration, which will then be
 # saved under /etc/bacula/bacula-sd.d and imported by the following line:
-@|"sh -c 'for f in /etc/bacula/bacula-sd.d/*.conf ; do echo @${f} ; done'"
+@|"sh -c 'for f in <%= @configdir %>/sd.d/*.conf ; do echo @${f} ; done'"

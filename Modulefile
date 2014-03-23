@@ -7,4 +7,5 @@ summary 'Bacula defined resource types'
 license 'ASL 2.0'
 project_page 'https://github.com/pahoughton/puppet-bacula'
 
-dependency 'puppetlabs/postgresql', '>= 0.0.1'
+dependency 'puppetlabs/postgresql'
+dependency 'saz/sudo'

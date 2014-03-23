@@ -1,5 +1,0 @@
-fixtures:
-  repositories:
-    postgresql: "https://github.com/puppetlabs/puppetlabs-postgresql.git"
-  symlinks:
-    bacula: "#{source_dir}"

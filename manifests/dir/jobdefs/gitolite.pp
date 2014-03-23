@@ -2,27 +2,29 @@
 #
 # Copyright (c) 2014 Paul Houghton <paul4hough@gmail.com>
 #
-define bacula::jobdefs::gitolite (
-  $client,
-  $basedir = '/var/lib/gitolite',
+define bacula::dir::jobdefs::gitolite (
+  $client  = undef,
+  $basedir = '/srv/gitolite',
   $pool    = undef,
-  $fileset = 'gitolite',
-  $sched   = undef
+  $sched   = 'WeeklyCycle',
   ) {
 
-  class { bacula::filesets::gitolite :
+  $jclient = $client ? {
+    undef   => $title,
+    default => $client,
+  }
+  $fileset = "gitolite-${jclient}"
+
+  bacula::dir::filesets::gitolite { $jclient :
     basedir        => $basedir,
   }->
-  bacula::job { $title :
-    client         => $client,
+  bacula::dir::job { "gitolite-${jclient}" :
+    client         => $jclient,
     level          => 'Full',
     jobdefs        => 'Default',
     pool           => $pool,
     fileset        => $fileset,
-    sched          => $sched ? {
-      undef   => 'WeeklyCycle',
-      default => $sched,
-    },
+    sched          => $sched,
     client_before  => "su - git -c '${basedir}/bin/gitolite writable @all off backup'",
     client_after   => "su - git -c '${basedir}/bin/gitolite writable @all on'",
   }

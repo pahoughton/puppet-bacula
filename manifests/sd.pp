@@ -3,16 +3,19 @@
 # Copyright (c) 2014 Paul Houghton <paul4hough@gmail.com>
 #
 class bacula::sd (
-  $dir_host   = undef,
-  $work_dir    = '/var/lib/bacula/work',
+  $dir_host   = $::hostname,
+  $configdir  = '/etc/bacula',
+  $rundir     = '/var/run/bacula',
+  $libdir     = '/var/lib/bacula',
+  $workdir    = '/srv/bacula/work',
+  $backupdir  = '/srv/bacula/backups',
   $max_jobs   = 2,
   $packages   = undef,
   $service    = 'bacula-sd',
   $user       = 'bacula',
   $group      = 'bacula',
-  $default    = '/var/lib/bacula/backups',
   $auto_label = undef,
-  $is_dir     = true,
+  $is_dir     = undef,
   $template   = 'bacula/bacula-sd.conf.erb'
   ) {
 
@@ -20,10 +23,10 @@ class bacula::sd (
     owner   => $user,
     group   => $group,
   }
-  
-  exec { "mkdir -p ${work_dir} - bacula::sd" :
+
+  exec { "mkdir -p ${workdir} - bacula::sd" :
     command => "/bin/mkdir -p '${workdir}'",
-    creates => $work_dir,
+    creates => $workdir,
   }
   if $packages == undef {
     case $::operatingsystem {
@@ -38,6 +41,9 @@ class bacula::sd (
       'Ubuntu' : {
         $sd_packages = ['bacula-sd-pgsql']
       }
+      default : {
+        faile("Unsupported ::operatingsystem '${::operatingsystem}'")
+      }
     }
   } else {
     $sd_packages = $packages
@@ -46,26 +52,18 @@ class bacula::sd (
     ensure => installed,
   }
 
-  if !$is_dir {
-    file { ['/var/run/bacula',
-            '/var/lib/bacula',
-            ] :
-              ensure  => 'directory',
-    }
-  }
-  file { '/etc/bacula/bacula-sd.conf':
+  file { "${configdir}/bacula-sd.conf" :
     ensure  => file,
     content => template($template),
     notify  => Service[$service],
     require => Package[$sd_packages]
   }
-
-  file { '/etc/bacula/bacula-sd.d':
-    ensure => directory,
-    before => Service[$service],
+  file { "${configdir}/sd.d" :
+    ensure  => 'directory',
+    before  => Service[$service],
     require => Package[$sd_packages]
   }->
-  file { '/etc/bacula/bacula-sd.d/empty.conf' :
+  file { "${configdir}/sd.d/empty.conf" :
     ensure  => 'file',
     content => "# empty\n",
     before  => Service[$service],
@@ -76,13 +74,14 @@ class bacula::sd (
     enable     => true,
     require    => [Package[$sd_packages]]
   }
-  if $default {
-    bacula::device::file { 'Default' :
-      device => $default,
-      label_media => $auto_label ? {
+  if $backupdir {
+    $label_media = $auto_label ? {
         true    => 'Yes',
         default => undef,
-      },
+    }
+    bacula::sd::device::file { 'Backupdir' :
+      device      => $backupdir,
+      label_media => $label_media
     }
   }
 }

@@ -2,16 +2,18 @@
 #
 # Copyright (c) 2014 Paul Houghton <paul4hough@gmail.com>
 #
-define bacula::schedule (
-  $run = undef,
+define bacula::dir::schedule (
+  $configdir  = '/etc/bacula',
+  $run        = undef,
+  $template   = 'bacula/schedule.conf.erb',
   ) {
-  
+
   $sched = $name ? {
-    undef   => "${title}",
+    undef   => $title,
     default => $name,
   }
 
-  file { "/etc/bacula/bacula-dir.d/sched-${sched}.conf" :
+  file { "${configdir}/dir.d/sched-${sched}.conf" :
     ensure  => 'file',
     content => template($template),
     notify  => Service[$bacula::dir::service],

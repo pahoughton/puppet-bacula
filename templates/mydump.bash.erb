@@ -1,0 +1,28 @@
+#!/bin/sh
+# mydump.bash.erb - 2014-03-17 16:25
+#
+# Copyright (c) 2014 Paul Houghton <paul4hough@gmail.com>
+#
+# = Manageged by puppet - do NOT edit =
+#
+exec > /dev/null # don't ask
+usage='
+$@
+
+For each database, create a fifo to write each database dump to which are
+then read by bacula for backup.
+
+'
+[ -n "$1" ] && echo $usage && exit 1
+
+dumpdir="<%= @my_dumpdir %>"
+fifodir="$dumpdir/fifo"
+
+rm -f $fifodir/*.data.dump
+for dbname in `mysql -s information_schema << EOI
+select schema_name from SCHEMATA where schema_name not in ('mysql', 'test', 'performance_schema');
+EOI
+`  ; do
+  mkfifo $fifodir/$dbname.data.dump
+  /usr/bin/mysqldump $dbname > $fifodir/$dbname.data.dump 2>&1 < /dev/null &
+done

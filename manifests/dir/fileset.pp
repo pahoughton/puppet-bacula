@@ -3,7 +3,8 @@
 # Copyright (c) 2014 Paul Houghton <paul4hough@gmail.com>
 #
 # Fixme ugly include data structure
-define bacula::fileset (
+define bacula::dir::fileset (
+  $configdir      = '/etc/bacula',
   $ignore_changes = undef,
   $enable_vss     = undef,
   $include        = undef,
@@ -12,15 +13,14 @@ define bacula::fileset (
   $template       = 'bacula/fileset.conf.erb',
   ) {
   $fileset = $name ? {
-    undef   => "${title}",
+    undef   => $title,
     default => $name,
   }
 
-  file { "/etc/bacula/bacula-dir.d/fileset-${fileset}.conf" :
+  file { "${configdir}/dir.d/fileset-${fileset}.conf" :
     ensure  => 'file',
     content => template($template),
     notify  => Service[$bacula::dir::service],
-    require => File['/etc/bacula/bacula-dir.d'],
+    require => File["${configdir}/dir.d"],
   }
 }
-  
