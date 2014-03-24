@@ -3,6 +3,8 @@
 # Copyright (c) 2014 Paul Houghton <paul4hough@gmail.com>
 #
 # Fixme ugly include data structure
+# include => [ [ ['/','/home'],['signature = MD5'] ] ],
+
 define bacula::dir::fileset (
   $configdir      = '/etc/bacula',
   $ignore_changes = undef,
