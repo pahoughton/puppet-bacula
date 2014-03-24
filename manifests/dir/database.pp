@@ -29,7 +29,6 @@ class bacula::dir::database (
         owner    => $user,
         user     => $user,
         password => $pass,
-        require  => Class['postgresql::server'],
         notify   => Exec[$make_db_tables_command],
       }
     }
