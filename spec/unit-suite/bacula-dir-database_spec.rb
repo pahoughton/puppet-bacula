@@ -3,39 +3,49 @@
 # Copyright (c) 2014 Paul Houghton <paul4hough@gmail.com>
 #
 require 'spec_helper'
-$os_rel = {
-  'Fedora' => 20,
-  'CentOS' => '6.',
-  'Ubuntu' => '13.10',
+
+os_lsbdist = {
+  'Ubuntu' => 'ubuntu',
 }
-$os_family = {
+os_lsbname = {
+  'Ubuntu' => 'precise',
+}
+
+os_family = {
   'Fedora' => 'RedHat',
   'CentOS' => 'RedHat',
-  'Ubuntu' => 'Debian',
+  'Ubuntu' => 'debian',
 }
-['Fedora','CentOS','Ubuntu'].each { |os|
-  describe 'bacula::dir::database', :type => :class do
-    context "supports operating system #{os}" do
-      let(:facts) do {
-          :osfamily               => $os_family[os],
-          :operatingsystem        => os,
-          :operatingsystemrelease => $os_rel[os],
-          :hostname               => 'testdbhost',
-      } end
-      context "required param srv_pass => 'psql'" do
-        let :params do {
-            :srv_pass => 'psql',
-        } end
+os_rel = {
+  'Fedora' => '20',
+  'CentOS' => '6',
+  'Ubuntu' => '13',
+}
 
-        # it { should contain_class('bacula::dir::database') }
-        # it { should contain_postgresql__server__db('bacula') }
-        # it { should contain_exec('bacula-make-db-tables').
-        #   with_notify('Service[bacula]')
-        # }
-        # it { should contain_file("#{configdir}/sd.d/device-#{title}.conf").
-        #   with_ensure('file').
-        #   with_content(/#{tparamval}/)
-        # }
+tobject = 'bacula::dir::database'
+# fixme 'CentOS','Ubuntu'
+['Fedora',].each { |os|
+  describe tobject, :type => :class do
+    tfacts = {
+      :osfamily               => os_family[os],
+      :operatingsystem        => os,
+      :operatingsystemrelease => os_rel[os],
+      :os_maj_version         => os_rel[os],
+      :hostname               => 'testdbhost',
+    }
+    let(:facts) do tfacts end
+    context "supports facts #{tfacts}" do
+      tparams = {
+        :name     => 'bacula',
+        :srv_pass => 'psql',
+      }
+      context "params #{tparams}" do
+        let :params do tparams end
+        it { should contain_class(tobject) }
+        it { should contain_postgresql__server__db('bacula') }
+        it { should
+          contain_exec('/usr/libexec/bacula/make_bacula_tables postgresql ')
+        }
       end
     end
   end
