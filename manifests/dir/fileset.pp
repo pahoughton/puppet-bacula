@@ -11,7 +11,7 @@ define bacula::dir::fileset (
   $enable_vss     = undef,
   $include        = undef,
   $options        = undef,
-  $excludes       = undef,
+  $exclude        = undef,
   $template       = 'bacula/fileset.conf.erb',
   ) {
   $fileset = $name ? {
