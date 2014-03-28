@@ -5,7 +5,4 @@ author 'Inkling/Puppet Labs'
 description 'Bacula defined resource types'
 summary 'Bacula defined resource types'
 license 'ASL 2.0'
-project_page 'https://github.com/pahoughton/puppet-bacula'
-
-dependency 'puppetlabs/postgresql'
-dependency 'saz/sudo'
+project_page 'http://github.com/pahoughton/puppet-bacula'
