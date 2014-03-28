@@ -43,9 +43,7 @@ tobject = 'bacula::dir::database'
         let :params do tparams end
         it { should contain_class(tobject) }
         it { should contain_postgresql__server__db('bacula') }
-        it { should
-          contain_exec('/usr/libexec/bacula/make_bacula_tables postgresql ')
-        }
+        it { should contain_exec('/usr/libexec/bacula/make_bacula_tables postgresql ') }
       end
     end
   end
