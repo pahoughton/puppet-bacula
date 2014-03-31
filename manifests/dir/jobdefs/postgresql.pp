@@ -21,7 +21,7 @@ define bacula::dir::jobdefs::postgresql (
     },
     default => $dump_user,
   }
-  $fileset   = "postgresql-${client}"
+  $fileset   = "postgresql-${jclient}"
 
   bacula::dir::filesets::postgresql { $jclient :
     dump_user => $user,
