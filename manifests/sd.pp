@@ -79,7 +79,7 @@ class bacula::sd (
         true    => 'Yes',
         default => undef,
     }
-    bacula::sd::device::file { 'Backupdir' :
+    bacula::sd::device::file { 'Default' :
       device      => $backupdir,
       label_media => $label_media
     }
