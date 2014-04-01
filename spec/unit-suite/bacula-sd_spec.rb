@@ -43,7 +43,7 @@ tobject = 'bacula::sd'
                  'enable' => true, })
         }
         it { should contain_file("#{confdir}/sd.d") }
-        it { should contain_bacula__sd__device__file('Backupdir') }
+        it { should contain_bacula__sd__device__file('Default') }
       end
     end
   end
