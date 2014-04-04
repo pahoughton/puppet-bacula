@@ -2,6 +2,8 @@
 #
 # Copyright (c) 2014 Paul Houghton <paul4hough@gmail.com>
 #
+# fixme - need to be able to provide existing db
+#
 class bacula::dir::database (
   $srv_pass,
   $host     = 'localhost',
