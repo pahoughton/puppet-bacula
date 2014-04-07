@@ -33,6 +33,12 @@ RSpec::Core::RakeTask.new(:unittest_nodoc) do |t|
   t.pattern = 'spec/unit-suite/**/*_spec.rb'
 end
 
+desc "Unit-suite tests w/ doc"
+RSpec::Core::RakeTask.new(:unittest_fulldoc) do |t|
+  t.rspec_opts = ['--format=d','--out=unittest-suite-results.txt']
+  t.pattern = 'spec/unit-suite/**/*_spec.rb'
+end
+
 desc "Generate test results markdown"
 task :unittest_suite => [:unittest_fulldoc] do
   sh "outfn=unittest-suite-results.md;
