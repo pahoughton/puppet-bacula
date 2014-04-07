@@ -4,6 +4,7 @@ puppet-bacula
 [Features - unittest-suite-results](http://github.com/pahoughton/puppet-bacula/wiki/unittest-suite-results)
 
 Complete configuration of bacula with some application specific jobs
+
 ```puppet
   # director node
   $servers = hiera('servers')
@@ -44,7 +45,7 @@ Table of Contents
 
 Overview
 --------
-Manage bacula
+Manage [bacula](http://www.bacula.org/)
 
 Contribute
 ----------
