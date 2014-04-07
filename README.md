@@ -1,8 +1,7 @@
-
 puppet-bacula
 =============
 
-(Features - test output)[fixme]
+[Features - unittest-suite-results](http://github.com/pahoughton/puppet-bacula/wiki/unittest-suite-results)
 
 Complete configuration of bacula with some application specific jobs
 ```puppet
