@@ -18,6 +18,8 @@ class bacula::fd (
   $pgres_user    = undef,
   $pgres_group   = undef,
   $mysql_support = true,
+  $user          = 'bacula',
+  $group         = 'bacula',
   $template      = 'bacula/bacula-fd.conf.erb',
   ) {
 
@@ -36,10 +38,20 @@ class bacula::fd (
 
   $workdir       = "${datadir}/work"
 
+  File {
+    owner   => $user,
+    group   => $group,
+    require => Package[$packages],
+  }
+
   if $fd_only {
+    file { $datadir :
+      ensure  => 'directory',
+      mode    => '0755',
+    }
+    ->
     file { [$configdir,
             $piddir,
-            $datadir,
             $workdir,
             $libdir,
             "${libdir}/scripts",] :
