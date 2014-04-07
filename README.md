@@ -5,7 +5,7 @@ puppet-bacula
 (Features - test output)[fixme]
 
 Complete configuration of bacula with some application specific jobs
-```
+```puppet
   # director node
   $servers = hiera('servers')
   $passwords = hiera('passwords')
@@ -34,8 +34,8 @@ Complete configuration of bacula with some application specific jobs
     dir_host => 'your-bac-dir.me.org',
   }
 
-  please see source and tests for now.
 ```
+Please see source and tests for now.
 
 Table of Contents
 -----------------
