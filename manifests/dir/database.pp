@@ -18,7 +18,7 @@ class bacula::dir::database (
   }
 
   case $backend {
-    'postgresql' : {
+    'pgsql' : {
 
       if ! $postgresql::server::postgres_password and $srv_pass {
 
