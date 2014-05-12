@@ -15,8 +15,8 @@ then read by bacula for backup.
 '
 [ -n "$1" ] && echo $usage && exit 1
 
-dumpdir="<%= @my_dumpdir %>"
-fifodir="$dumpdir/fifo"
+dumpdir="<%= @dirmysql %>"
+fifodir=$dumpdir
 
 rm -f $fifodir/*.data.dump
 for dbname in `mysql -s information_schema << EOI

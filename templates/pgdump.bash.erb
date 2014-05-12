@@ -8,12 +8,12 @@
 #  Create fifo's for bacula to read and perform database backup's through.
 #
 exec > /dev/null # don't ask
-dumpdir="<%= @pg_dumpdir %>"
-fifodir="$DUMPDIR/fifo"
-export PGUSER=postgres
+dumpdir="<%= @dirpgsql %>"
+fifodir=$dumpdir
+export PGUSER=<%= @pg_user =>
 #export PGPASSWORD=xxxx      # only when pg_hba.conf requires it
 # hopefully never a big file, so no need for a fifo
-/usr/bin/pg_dumpall -g >$DUMPDIR/globalobjects.dump
+/usr/bin/pg_dumpall -g >$dumpdir/globalobjects.dump
 rm -f $fifodir/*.data.dump
 for dbname in `psql -d template1 -q -t <<EOF
 select datname from pg_database where not datname in ('template0') order by datname;

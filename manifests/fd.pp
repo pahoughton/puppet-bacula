@@ -5,136 +5,193 @@
 # This is installed on the client
 
 class bacula::fd (
-  $dir_host,
-  $configdir     = '/etc/bacula',
-  $piddir        = '/var/run/bacula',
-  $libdir        = '/var/lib/bacula',
-  $datadir       = '/srv/bacula',
-  $fd_packages   = undef,
-  $max_jobs      = 2,
-  $service       = 'bacula-fd',
-  $fd_only       = true,
-  $pgres_support = true,
-  $pgres_user    = undef,
-  $pgres_group   = undef,
-  $mysql_support = true,
-  $user          = 'bacula',
-  $group         = 'bacula',
-  $template      = 'bacula/bacula-fd.conf.erb',
+  $director        = 'localhost',
+  $cfgdir          = '/etc/bacula',
+  $piddir          = '/var/run/bacula',
+  $libdir          = '/var/lib/bacula',
+  $datadir         = '/srv/bacula',
+  $packages        = undef,
+  $max_jobs        = 2,
+  $service         = 'bacula-fd',
+  $fd_only         = true,
+  $pgsql_support   = false,
+  $pgsql_user      = undef,
+  $pgsql_group     = undef,
+  $mysql_support   = false,
+  $user            = 'bacula',
+  $group           = 'bacula',
+  $manage_firewall = false,
+  $template        = 'bacula/bacula-fd.conf.erb',
   ) {
 
-  $packages = $fd_packages ? {
-    undef   => $::osfamily ? {
-      'debian' => 'bacula-fd',
-      'RedHat' => 'bacula-client',
-      default  => undef,
+  $directories = hiera('directories',{'bacula' => {
+    'cfg'  => $cfgdir,
+    'data' => $datadir,
+    'lib'  => $libdir,
+    'pid'  => $piddir,
+    }}
+  )
+  $groups      = hiera('groups',{'bacula' => $group })
+  $ports       = hiera('ports',{'bacula-sd' => '9102'})
+  $servers     = hiera('servers',{'bacula-dir' => $director })
+  $users       = hiera('users',{'bacula' => $user })
+
+  $pkgs = $packages ? {
+    undef      => $::osfamily ? {
+      'RedHat' => ['bacula-client',],
+      default  => ['bacula-fd',],
     },
-    default => $fd_packages,
+    default    => $packages,
   }
 
-  package { $packages :
-    ensure => 'installed',
-  }
-
-  $workdir       = "${datadir}/work"
+  ensure_packages($pkgs)
 
   File {
-    owner   => $user,
-    group   => $group,
-    require => Package[$packages],
+    owner   => $users['baula'],
+    group   => $groups['bacula'],
+    require => Package[$pkgs],
   }
 
-  if $fd_only {
-    file { $datadir :
-      ensure  => 'directory',
-      mode    => '0755',
+  $dircfg   = $directories['bacula']['cfg']
+  $dirdata  = $directories['bacula']['data']
+  $dirlib   = $directories['bacula']['lib']
+  $dirscr   = "${directories['bacula']['lib']}/scripts"
+  $dirpid   = $directories['bacula']['pid']
+  $dirwork  = "${directories['bacula']['data']}/work"
+  $dirpgsql = "${directories['bacula']['data']}/work/pgsql"
+  $dirmysql = "${directories['bacula']['data']}/work/mysql"
+
+  $dirs = [ $dircfg,
+            $dirdata,
+            $dirlib,
+            $dirpid,
+            $dirwork,
+            ]
+
+  ensure_resource('file',$dirs,{
+    ensure  => 'directory',
+    mode    => '0775',
     }
-    ->
-    file { [$configdir,
-            $piddir,
-            $workdir,
-            $libdir,
-            "${libdir}/scripts",] :
-      ensure  => 'directory',
-      mode    => '0755',
-    }
-  }
-  file { "${configdir}/bacula-fd.conf" :
+  )
+  ensure_resource('file',"${dircfg}/bacula-fd.conf",{
     ensure  => 'file',
+    mode    => '0664',
     content => template($template),
     notify  => Service[$service],
-    require => Package[$packages],
-  }
-  service { $service :
+  })
+
+  ensure_resource('service',$service,{
     ensure  => 'running',
     enable  => true,
-    require => File["${configdir}/bacula-fd.conf"],
+    require => File["${dircfg}/bacula-fd.conf"],
+  })
+
+  File {
+    ensure  => 'file',
+    mode    => '0555',
   }
 
-  if $pgres_support {
-    $pg_user  = $pgres_user ? {
-      undef      => $::operatingsystem ? {
-        'Darwin' => '_postgres',
-        default  => 'postgres',
-      },
-      default    => $pgres_user,
-    }
-    $pg_group  = $pgres_group ? {
-      undef      => $::operatingsystem ? {
-        'Darwin' => '_postgres',
-        default  => 'postgres',
-      },
-      default    => $pgres_group,
-    }
-    $pg_dumpdir = "${workdir}/postgres"
-    file { [$pg_dumpdir, "${pg_dumpdir}/fifo"] :
-      ensure  => 'directory',
-      owner   => $pg_user,
-      group   => $pg_group,
-      mode    => '0775',
-    }
-    file { "${libdir}/scripts/pgdump.bash" :
-      ensure  => 'file',
-      mode    => '0555',
-      content => template('bacula/pgdump.bash.erb'),
-      require => File["${libdir}/scripts"],
-    }
-    file { "${libdir}/scripts/pgclean.bash" :
-      ensure  => 'file',
-      mode    => '0555',
-      content => template('bacula/pgclean.bash.erb'),
-      require => File["${libdir}/scripts"],
-    }
-    file { "${libdir}/scripts/pglist.bash" :
-      ensure  => 'file',
-      mode    => '0555',
-      content => template('bacula/pglist.bash.erb'),
-      require => File["${libdir}/scripts"],
+  $pg_user  = $pgsql_user ? {
+    undef      => $::operatingsystem ? {
+      'Darwin' => '_postgres',
+      default  => 'postgres',
+    },
+    default    => $pgsql_user,
+  }
+
+  if $pgsql_support {
+    if $pg_user {
+
+      $pg_group  = $pgsql_group ? {
+        undef      => $::operatingsystem ? {
+          'Darwin' => '_postgres',
+          default  => 'postgres',
+        },
+        default    => $pgsql_group,
+      }
+      ensure_resource('file',$dirscr,{
+        ensure  => 'directory',
+        mode    => '0775',
+        }
+      )
+      ensure_resource('file',$dirpgsql,{
+        owner   => $pg_user,
+        ensure  => 'directory',
+        mode    => '0775',
+        }
+      )
+      ensure_resource('file',"${dirscr}/pgclean.bash",{
+        content => template('bacula/pgclean.bash.erb'),
+        require => File[$dirscr],
+        }
+      )
+      ensure_resource('file',"${dirscr}/pgdump.bash",{
+        content => template('bacula/pgdump.bash.erb'),
+        require => File[$dirscr],
+        }
+      )
+      ensure_resource('file',"${dirscr}/pglist.bash",{
+        content => template('bacula/pglist.bash.erb'),
+        require => File[$dirscr],
+        }
+      )
+    } else {
+      notify { "pgsql_support requires User[pg_user] for ${pg_user}" : }
     }
   }
+
+  $my_user  = $mysql_user ? {
+    undef      => $::operatingsystem ? {
+      'Darwin' => '_postgres',
+      default  => 'postgres',
+    },
+    default    => $mysql_user,
+  }
   if $mysql_support {
-    $my_dumpdir = "${workdir}/mysql"
-    file { [$my_dumpdir, "${my_dumpdir}/fifo"] :
-      ensure  => 'directory',
-      mode    => '0775',
+    if $mysql_user and defined(User[$pg_user]) {
+
+      $my_group  = $mysql_group ? {
+        undef      => $::operatingsystem ? {
+          'Darwin' => '_postgres',
+          default  => 'postgres',
+        },
+        default    => $mysql_group,
+      }
+      ensure_resource('file',$dirscr,{
+        ensure  => 'directory',
+        mode    => '0775',
+        }
+      )
+      ensure_resource('file',$dirmysql,{
+        owner   => $my_user,
+        ensure  => 'directory',
+        mode    => '0775',
+        }
+      )
+      ensure_resource('file',"${dirscr}/myclean.bash",{
+        content => template('bacula/myclean.bash.erb'),
+        require => File[$dirscr],
+        }
+      )
+      ensure_resource('file',"${dirscr}/mydump.bash",{
+        content => template('bacula/mydump.bash.erb'),
+        require => File[$dirscr],
+        }
+      )
+      ensure_resource('file',"${dirscr}/mylist.bash",{
+        content => template('bacula/mylist.bash.erb'),
+        require => File[$dirscr],
+        }
+      )
+    } else {
+      notify { "mysql_support requires User[my_user] for ${my_user}" : }
     }
-    file { "${libdir}/scripts/mydump.bash" :
-      ensure  => 'file',
-      mode    => '0555',
-      content => template('bacula/mydump.bash.erb'),
-      require => File["${libdir}/scripts"],
-    }
-    file { "${libdir}/scripts/myclean.bash" :
-      ensure  => 'file',
-      mode    => '0555',
-      content => template('bacula/myclean.bash.erb'),
-      require => File["${libdir}/scripts"],
-    }
-    file { "${libdir}/scripts/mylist.bash" :
-      ensure  => 'file',
-      mode    => '0555',
-      content => template('bacula/mylist.bash.erb'),
-      require => File["${libdir}/scripts"],
+  }
+  if $manage_firewall {
+    firewall { "${ports[bacula-dir]} accept - bacula-dir":
+      port   => $ports['bacula-dir'],
+      proto  => 'tcp',
+      action => 'accept',
     }
   }
 }

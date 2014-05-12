@@ -15,8 +15,8 @@ backups through
 '
 [ -n "$1" ] && echo $usage && exit 1
 
-dumpdir="<%= @my_dumpdir %>"
-fifodir="$dumpdir/fifo"
+dumpdir="<%= @dirmysql %>"
+fifodir=$dumpdir
 
 for dbname in `mysql -s information_schema << EOI
 select schema_name from SCHEMATA where schema_name not in ('mysql', 'test', 'performance_schema');

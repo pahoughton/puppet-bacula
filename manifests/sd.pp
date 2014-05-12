@@ -3,78 +3,98 @@
 # Copyright (c) 2014 Paul Houghton <paul4hough@gmail.com>
 #
 class bacula::sd (
-  $dir_host   = $::hostname,
-  $configdir  = '/etc/bacula',
-  $rundir     = '/var/run/bacula',
-  $libdir     = '/var/lib/bacula',
-  $workdir    = '/srv/bacula/work',
-  $backupdir  = '/srv/bacula/backups',
-  $max_jobs   = 2,
-  $packages   = undef,
-  $service    = 'bacula-sd',
-  $user       = 'bacula',
-  $group      = 'bacula',
-  $auto_label = undef,
-  $is_dir     = undef,
-  $template   = 'bacula/bacula-sd.conf.erb'
+  $director        = 'localhost',
+  $cfgdir          = '/etc/bacula',
+  $piddir          = '/var/run/bacula',
+  $libdir          = '/var/lib/bacula',
+  $datadir         = '/srv/bacula',
+  $bkupdir         = '/srv/bacula/backup',
+  $packages        = undef,
+  $max_jobs        = 2,
+  $service         = 'bacula-sd',
+  $user            = 'bacula',
+  $group           = 'bacula',
+  $auto_label      = undef,
+  $is_dir          = undef,
+  $manage_firewall = false,
+  $template        = 'bacula/bacula-sd.conf.erb'
   ) {
 
+  $directories = hiera('directories',{'bacula' => {
+    'bkup' => $bkupdir,
+    'cfg'  => $cfgdir,
+    'data' => $datadir,
+    'lib'  => $libdir,
+    'pid'  => $piddir,
+    }}
+  )
+  $servers     = hiera('servers',{'bacula-dir' => $director })
+  $groups      = hiera('groups',{'bacula' => $group })
+  $users       = hiera('users',{'bacula' => $user })
+  $ports       = hiera('ports',{'bacula-sd' => '9103'})
+
+  $pkgs = $packages ? {
+    undef      => $::operatingsystem ? {
+      'CentOS' => [ 'bacula-storage-common',
+                    'bacula-storage-mysql',
+                    'bacula-storage-postgresql',
+                    ],
+      'Ubuntu' => ['bacula-sd-pgsql'],
+      default  => ['bacula-storage',],
+    },
+    default    => $packages,
+  }
+
+  ensure_packages($pkgs)
+
   File {
-    owner   => $user,
-    group   => $group,
+    owner   => $users['baula'],
+    group   => $groups['bacula'],
+    require => Package[$pkgs],
   }
 
-  exec { "mkdir -p ${workdir} - bacula::sd" :
-    command => "/bin/mkdir -p '${workdir}'",
-    creates => $workdir,
-  }
-  if $packages == undef {
-    case $::operatingsystem {
-      'CentOS' : {
-        $sd_packages = ['bacula-storage-common',
-                        'bacula-storage-mysql',
-                        'bacula-storage-postgresql',]
-      }
-      'Fedora' : {
-        $sd_packages = ['bacula-storage',]
-      }
-      'Ubuntu' : {
-        $sd_packages = ['bacula-sd-pgsql']
-      }
-      default : {
-        faile("Unsupported ::operatingsystem '${::operatingsystem}'")
-      }
-    }
-  } else {
-    $sd_packages = $packages
-  }
-  package { $sd_packages:
-    ensure => installed,
-  }
+  $dircfg   = $directories['bacula']['cfg']
+  $dirdata  = $directories['bacula']['data']
+  $dirlib   = $directories['bacula']['lib']
+  $dirscr   = "${directories['bacula']['lib']}/scripts"
+  $dirsdcfg = "${directories['bacula']['cfg']}/sd.d"
+  $dirpid   = $directories['bacula']['pid']
+  $dirwork  = "${directories['bacula']['data']}/work"
+  $dirbkup  = "${directories['bacula']['bkup']}"
 
-  file { "${configdir}/bacula-sd.conf" :
-    ensure  => file,
-    content => template($template),
-    notify  => Service[$service],
-    require => Package[$sd_packages]
-  }
-  file { "${configdir}/sd.d" :
+  $dirs = [ $dircfg,
+            $dirdata,
+            $dirlib,
+            $dirpid,
+            $dirsdcfg,
+            $dirwork,
+            ]
+
+  ensure_resource('file',$dirs,{
     ensure  => 'directory',
-    before  => Service[$service],
-    require => Package[$sd_packages]
-  }->
-  file { "${configdir}/sd.d/empty.conf" :
+    mode    => '0775',
+    }
+  )
+  file { "${dirsdcfg}/empty.conf" :
     ensure  => 'file',
     content => "# empty\n",
-    before  => Service[$service],
+    require => File[$dirsdcfg],
   }
-  # Register the Service so we can manage it through Puppet
-  service { $service :
-    ensure     => 'running',
-    enable     => true,
-    require    => [Package[$sd_packages]]
-  }
-  if $backupdir {
+  ensure_resource('file',"${dircfg}/bacula-sd.conf",{
+    ensure  => 'file',
+    mode    => '0664',
+    content => template($template),
+    notify  => Service[$service],
+  })
+
+  ensure_resource('service',$service,{
+    ensure  => 'running',
+    enable  => true,
+    require => File["${dircfg}/bacula-sd.conf"],
+  })
+
+
+  if $dirbkup {
     $label_media = $auto_label ? {
         true    => 'Yes',
         default => undef,
@@ -82,6 +102,14 @@ class bacula::sd (
     bacula::sd::device::file { 'Default' :
       device      => $backupdir,
       label_media => $label_media
+    }
+  }
+
+  if $manage_firewall {
+    firewall { "${ports[bacula-sd]} accept - bacula-sd":
+      port   => $ports['bacula-sd'],
+      proto  => 'tcp',
+      action => 'accept',
     }
   }
 }

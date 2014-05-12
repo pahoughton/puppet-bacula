@@ -5,8 +5,8 @@
 #
 #  remove fifo's used by bacula to read and perform database backup's through.
 #
-dumpdir="<%= @pg_dumpdir %>" #/var/lib/pgsql/backups
-fifodir="$dumpdir/fifo"
+dumpdir="<%= @dirpgsql %>" #/var/lib/pgsql/backups
+fifodir="$dumpdir"
 for dbname in `psql -U postgres -d template1 -q -t <<EOF
 select datname from pg_database where not datname in ('bacula','template0') order by datname;
 EOF

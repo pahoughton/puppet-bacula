@@ -46,7 +46,7 @@ tobject = 'bacula::dir'
          '/srv/bacula/restore',].each { |dir|
           it { should contain_file(dir).
             with( 'ensure' => 'directory',
-                  'mode'   => '0750' )
+                  'mode'   => '0775' )
           }
         }
         it { should contain_file("#{confdir}/bacula-dir.conf") }
@@ -56,14 +56,13 @@ tobject = 'bacula::dir'
         it { should contain_bacula__dir__job('Default') }
         it { should contain_bacula__dir__pool('Default') }
         it { should contain_bacula__dir__fileset('FullSet') }
-        it { should contain_bacula__dir__jobdefs__postgresql('tester') }
+        it { should contain_bacula__dir__jobdefs__pgsql('tester') }
       end
       params = {
-        'configdir'  => '/etc-test/bacula',
-        'rundir'     => '/var-test/run/bacula',
+        'cfgdir'     => '/etc-test/bacula',
+        'piddir'     => '/var-test/run/bacula',
         'libdir'     => '/var-test/lib/bacula',
-        'workdir'    => '/srv-test/bacula/work',
-        'restoredir' => '/srv-test/bacula/restore'
+        'datadir'    => '/srv-test/bacula',
       }
       params.each { |p,val|
         context "with params #{p} => #{val}" do
@@ -72,7 +71,7 @@ tobject = 'bacula::dir'
             } end
           it { should contain_file(val).
             with( 'ensure' => 'directory',
-                  'mode'   => '0750' )
+                  'mode'   => '0775' )
           }
         end
       }

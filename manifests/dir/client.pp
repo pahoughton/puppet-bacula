@@ -5,7 +5,7 @@
 # Director client - part of Director configuration.
 
 define bacula::dir::client (
-  $configdir   = '/etc/bacula',
+  $cfgdir      = '/etc/bacula',
   $f_retention = '60 days',
   $j_retention = '60 days',
   $auto_prune  = 'yes',
@@ -18,10 +18,10 @@ define bacula::dir::client (
     default => $name,
   }
 
-  file { "${configdir}/dir.d/client-${fd_host}.conf" :
+  file { "${cfgdir}/dir.d/client-${fd_host}.conf" :
     ensure  => 'file',
     content => template($template),
     notify  => Service[$bacula::dir::service],
-    require => File["${configdir}/dir.d/"],
+    require => File["${cfgdir}/dir.d/"],
   }
 }

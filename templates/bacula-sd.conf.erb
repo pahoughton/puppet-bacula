@@ -2,25 +2,25 @@
 #
 # Bacula Storage Daemon Configuration
 #   for <%= @hostname %>-sd
-#   via <%= @dir_host -%>-dir
+#   via <%= @director -%>-dir
 
 # Configure the Director which will manage this Storage Daemon, and the
 # Director through which we'll send our messages (will be the same) one.
 Director {
-  Name = "<%= @dir_host -%>-dir"
+  Name = "<%= @director -%>-dir"
   Password = "<%= @hostname -%>-sd-pass"
 }
 
 Messages {
   Name = "<%= @hostname -%>-msg-standard"
-  Director = "<%= @dir_host -%>-dir" = all
+  Director = "<%= @director -%>-dir" = all
 }
 
 # Configure the basic details for the Storage Daemon on this server
 Storage {
   Name = "<%= @hostname -%>-sd"
-  Working Directory = "<%= @workdir %>"
-  PID Directory = "<%= @piddir %>"
+  Working Directory = "<%= @dirwork %>"
+  PID Directory = "<%= @dirpid %>"
   Maximum Concurrent Jobs = <%= @max_jobs %>
 }
 
@@ -28,4 +28,4 @@ Storage {
 # All other Devices are created by the clients that need them - each will
 # prepare their own device and pool configuration, which will then be
 # saved under /etc/bacula/bacula-sd.d and imported by the following line:
-@|"sh -c 'for f in <%= @configdir %>/sd.d/*.conf ; do echo @${f} ; done'"
+@|"sh -c 'for f in <%= @dircfg %>/sd.d/*.conf ; do echo @${f} ; done'"

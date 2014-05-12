@@ -12,11 +12,11 @@
 Director {
   Name = "<%= @hostname -%>-dir"
   Password = "<%= @hostname -%>-dir-pass"
-  Query File = "/etc/bacula/query.sql"
-  Working Directory = "<%= @workdir %>"
-  PID Directory = "/var/run/bacula"
+  Working Directory = "<%= @dirwork %>"
+  PID Directory = "<%= @dirpid %>"
   Maximum Concurrent Jobs = <%= @max_jobs %>
   Messages = "<%= @hostname -%>-msg-daemon"
+  QueryFile = "<%= @queryfn %>"
 }
 
 # Backup data catalog
@@ -36,10 +36,11 @@ Catalog {
 
 # MESSAGES
 # Configure how the directory will log and/or send messages.
+# fixme - need more flexible config options
 Messages {
   Name = "<%= @hostname -%>-msg-standard"
-  Mail Command = "/usr/lib/bacula/bsmtp -h localhost -f bacula@<%= @hostname -%> -s \"Bacula %t %e (for %c)\" %r"
-  Operator Command = "/usr/lib/bacula/bsmtp -h localhost -f bacula@<%= @hostname -%> -s \"Bacula Intervention Required (for %c)\" %r"
+  Mail Command = "/usr/sbin/bsmtp -h localhost -f bacula@<%= @hostname -%> -s \"Bacula %t %e (for %c)\" %r"
+  Operator Command = "/usr/sbin/bsmtp -h localhost -f bacula@<%= @hostname -%> -s \"Bacula Intervention Required (for %c)\" %r"
   Mail = <%= @mail_to -%> = all, !skipped
   Operator = <%= @mail_to -%> = mount
   Console = all, !skipped, !saved
@@ -51,9 +52,10 @@ Messages {
 }
 
 # These are messages directly from the various daemons themselves.
+# fixme - need more flexible config options
 Messages {
   Name = "<%= @hostname -%>-msg-daemon"
-  Mail Command = "/usr/lib/bacula/bsmtp -h localhost -f bacula@<%= hostname -%> -s \"Bacula Notice (from Director %d)\" %r"
+  Mail Command = "/usr/sbin/bsmtp -h localhost -f bacula@<%= hostname -%> -s \"Bacula Notice (from Director %d)\" %r"
   Mail = <%= @mail_to -%> = all, !skipped
   Console = all, !skipped, !saved
   Append = "/var/log/bacula/<%= @hostname -%>-dir.log" = all, !skipped
@@ -75,4 +77,4 @@ Schedule {
 
 # Finally, bring in all the additional pieces of configuration from the
 # different servers for which this Director was configured to manage
-@|"sh -c 'for f in <%= @configdir %>/dir.d/*.conf ; do echo @${f} ; done'"
+@|"sh -c 'for f in <%= @dircfg %>/dir.d/*.conf ; do echo @${f} ; done'"

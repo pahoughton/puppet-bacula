@@ -4,42 +4,48 @@
 #
 # No spaces in subcomponent names.
 class bacula::dir (
-  $configdir        = '/etc/bacula',
-  $rundir           = '/var/run/bacula',
-  $libdir           = '/var/lib/bacula',
-  $homedir          = '/srv/bacula',
-  $workdir          = '/srv/bacula/work',
-  $backupdir        = '/srv/bacula/backups',
-  $restoredir       = '/srv/bacula/restore',
+  $cfgdir          = '/etc/bacula',
+  $piddir          = '/var/run/bacula',
+  $libdir          = '/var/lib/bacula',
+  $datadir         = '/srv/bacula',
   $db_srv_pass      = undef,
-  $db_backend       = 'postgresql',
+  $db_backend       = 'pgsql',
   $db_host          = 'localhost',
   $db_user          = 'bacula',
   $db_pass          = 'bacula',
   $db_name          = 'bacula',
-  $pg_dumpdir       = '/srv/postgres/dump', # Fixme
   $max_jobs         = 5,
   $mail_to          = 'root@localhost',
   $sd_host          = undef,
   $user             = 'bacula',
   $group            = 'bacula',
-  $postgresql_user  = 'postgres',
-  $postgresql_group = 'postgres',
+  $db_os_user       = 'postgres',
+  $db_os_group      = 'postgres',
+  $manage_firewall  = false,
   ) {
+
+  $directories = hiera('directories',{'bacula' => {
+    'cfg'  => $cfgdir,
+    'data' => $datadir,
+    'lib'  => $libdir,
+    'pid'  => $piddir,
+    }}
+  )
+  $ports       = hiera('ports',{'bacula-sd' => '9101'})
 
   case $::operatingsystem {
     'Fedora' : {
-      $package    = 'bacula-director'
-      $service    = 'bacula-dir'
+      $packages     = ['bacula-director']
+      $service  = 'bacula-dir'
     }
     'CentOS' : {
-      $package    = "bacula-director-${db_backend}"
-      $service    = 'bacula-dir'
+      $packages     = ["bacula-director-${db_backend}"]
+      $service  = 'bacula-dir'
     }
     'Ubuntu' : {
       case $db_backend {
-        'postgresql' : {
-          $package    = ['bacula-common-pgsql','bacula-director-pgsql']
+        'pgsql' : {
+          $packages    = ['bacula-common-pgsql','bacula-director-pgsql']
         }
         default : {
           fail("Ubuntu unsupported db_backend ${db_backend}")
@@ -49,15 +55,13 @@ class bacula::dir (
     }
   }
 
-  package { $package :
-    ensure => 'installed',
-  }
+  ensure_packages([$packages])
 
   File {
     owner   => $user,
     group   => $group,
     notify  => Service[$service],
-    require => Package[$package],
+    require => Package[$packages],
   }
 
   class { 'bacula::dir::database' :
@@ -69,26 +73,44 @@ class bacula::dir (
     pass     => $db_pass,
   }
 
-  file { [$configdir,
-          $homedir,
-          $rundir,
-          $libdir,
-          "${libdir}/scripts",
-          $workdir,
-          $restoredir,] :
-    ensure  => 'directory',
-    mode    => '0750',
-  }
+  $dircfg   = $directories['bacula']['cfg']
+  $dirdata  = $directories['bacula']['data']
+  $dirlib   = $directories['bacula']['lib']
+  $dirscr   = "${directories['bacula']['lib']}/scripts"
+  $dirpid   = $directories['bacula']['pid']
+  $dirwork  = "${directories['bacula']['data']}/work"
+  $dirrest  = "${directories['bacula']['data']}/restore"
+  $dirpgsql = "${directories['bacula']['data']}/work/pgsql"
+  $dirmysql = "${directories['bacula']['data']}/work/mysql"
 
-  file { "${configdir}/bacula-dir.conf" :
+  $dirs = [ $dircfg,
+            $dirdata,
+            $dirlib,
+            $dirpid,
+            $dirwork,
+            $dirrest,
+            ]
+
+  ensure_resource('file',$dirs,{
+    ensure  => 'directory',
+    mode    => '0775',
+    }
+  )
+
+  # used by template
+  $queryfn = $::osfamily ? {
+    'Debian'  => "${dircfg}/scripts/query.sql",
+    default   => "${dircfg}/query.sql",
+  }
+  file { "${dircfg}/bacula-dir.conf" :
     ensure  => 'file',
     content => template('bacula/bacula-dir.conf.erb'),
   }
 
-  file { "${configdir}/dir.d" :
+  file { "${dircfg}/dir.d" :
     ensure  => 'directory',
   }
-  file { "${configdir}/dir.d/empty.conf" :
+  file { "${dircfg}/dir.d/empty.conf" :
     ensure  => 'file',
     content => "# empty\n",
   }
@@ -98,12 +120,12 @@ class bacula::dir (
     enable => true,
   }
   class { 'bacula::fd' :
-    dir_host      => $::hostname,
-    pgres_support => true,
+    director      => $::hostname,
+    pgsql_support => true,
     fd_only       => false,
   }
   bacula::dir::client { $::hostname :
-    configdir => $configdir,
+    cfgdir => $dircfg,
   }
   class { 'bacula::bconsole' : }
 
@@ -122,7 +144,7 @@ class bacula::dir (
     storage         => 'Default',
     pool            => 'Default',
     fileset         => 'FullSet',
-    where           => $restoredir,
+    where           => $dirrest,
   }
   bacula::dir::job { 'Default' :
     jtype           => 'JobDefs',
@@ -132,7 +154,7 @@ class bacula::dir (
     storage         => 'Default',
     pool            => 'Default',
     priority        => 10,
-    write_bootstrap => "${workdir}/%c.bsr",
+    write_bootstrap => "${dirwork}/%c.bsr",
   }
   bacula::dir::pool { 'Default' :
     recycle       => 'yes',
@@ -144,18 +166,21 @@ class bacula::dir (
   bacula::dir::fileset { 'FullSet' :
     include => [ [ ['/','/home'],['signature = MD5'] ] ],
   }
-  # sudo::conf { 'bacula-postgres' :
-  #   priority => 10,
-  #   content  => 'bacula ALL = (postgres) NOPASSWD: ALL',
-  # }
   case $db_backend {
-    'postgresql' : {
-      bacula::dir::jobdefs::postgresql { $::hostname :
+    'pgsql' : {
+      bacula::dir::jobdefs::pgsql { $::hostname :
         libdir => $libdir
       }
     }
     default : {
       fail( "unsupport db backend: ${db_backend}" )
+    }
+  }
+  if $manage_firewall {
+    firewall { "${ports[bacula-dir]} accept - bacula-dir":
+      port   => $ports['bacula-dir'],
+      proto  => 'tcp',
+      action => 'accept',
     }
   }
 }

@@ -1,4 +1,4 @@
-# bacula-dir-jobdefs-postgresql_spec.rb - 2014-03-18 04:30
+# bacula-dir-filesets-pgsql_spec.rb - 2014-03-18 04:01
 #
 # Copyright (c) 2014 Paul Houghton <paul4hough@gmail.com>
 #
@@ -15,7 +15,7 @@ os_release = {
   'Ubuntu' => '13',
 }
 
-tobject = 'bacula::dir::jobdefs::postgresql'
+tobject = 'bacula::dir::filesets::pgsql'
 ['Fedora','CentOS','Ubuntu',].each { |os|
   describe tobject, :type => :define do
     tfacts = {
@@ -27,12 +27,10 @@ tobject = 'bacula::dir::jobdefs::postgresql'
     }
     let(:facts) do tfacts end
     context "supports facts #{tfacts}" do
-      tclient = 'tester'
-      let (:title) { tclient }
+      let (:title) { 'tester' }
       #it { should compile } #?- fail: expected that the catalogue would include
-      it { should contain_bacula__dir__jobdefs__postgresql(tclient) }
-      it { should contain_bacula__dir__filesets__postgresql(tclient) }
-      it { should contain_bacula__dir__job("postgresql-#{tclient}") }
+      it { should contain_bacula__dir__filesets__pgsql('tester') }
+      it { should contain_bacula__dir__fileset('pgsql-tester') }
     end
   end
 }

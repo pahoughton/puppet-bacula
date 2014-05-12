@@ -7,21 +7,30 @@
 class bacula::dir::database (
   $srv_pass,
   $host     = 'localhost',
-  $backend  = 'postgresql',
+  $backend  = 'pgsql',
   $user     = 'bacula',
   $pass     = 'bacula',
 ) {
 
+  case $backend {
+    'pgsql' : {
+      $mbkend = 'postgresql'
+      $muser  = 'postgres'
+    }
+    default : {
+      fail("unsupported db backend: ${backend}")
+    }
+  }
+
   $make_db_tables_command = $::operatingsystem ? {
-    'CentOS'  => "/usr/libexec/bacula/make_${backend}_tables ${db_params}",
-    default   => "/usr/libexec/bacula/make_bacula_tables ${backend} ${db_params}",
+    'Ubuntu'  => "/usr/share/bacula-director/make_${mbkend}_tables -U ${user} -h ${host}",
+    default   => "/usr/libexec/bacula/make_${mbkend}_tables -U ${user} -h ${host}",
   }
 
   case $backend {
     'pgsql' : {
 
       if ! $postgresql::server::postgres_password and $srv_pass {
-
         class { 'postgresql::server' :
           postgres_password  => $srv_pass,
           listen_addresses   => '*',
@@ -33,25 +42,34 @@ class bacula::dir::database (
         password => $pass,
         notify   => Exec[$make_db_tables_command],
       }
+      # fixme - hardcoded until find a good way to get ~$user dir
+      $pghome = $::osfamily ? {
+        'Debian' => '/var/lib/postgresql',
+        'RedHat' => '/var/lib/pgsql',
+      }
+      concat { "${pghome}/.pgpass" :
+        owner   => $postgresql::server::user,
+        group   => $postgresql::server::group,
+        mode    => '0600',
+        require => Postgresql::Server::Db[$name],
+      }
+      concat::fragment { 'bacula' :
+        target  => "${pghome}/.pgpass",
+        content => "${host}:*:*:${user}:${pass}\n",
+      }
     }
     default : {
       fail("unsupported db backend: ${backend}")
     }
   }
 
-  $db_params = $backend ? {
-    'sqlite'      => '',
-    'mysql'       => "--user=${user} --password=${pass}",
-    'postgresql'  => '',
-  }
-  $make_db_tables_user = $backend ? {
-    'postgresql' => $user,
-    default      => root,
-  }
+  # todo require pgsql depended
   exec { $make_db_tables_command :
     command     => $make_db_tables_command,
-    user        => $make_db_tables_user,
+    environment => "db_name=${name}",
+    user        => $muser,
     notify      => Service[$bacula::dir::service],
+    require     => Concat["${pghome}/.pgpass"],
     refreshonly => true,
   }
 }

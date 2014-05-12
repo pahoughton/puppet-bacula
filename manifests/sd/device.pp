@@ -55,6 +55,12 @@ define bacula::sd::device (
     undef   => $title,
     default => $name,
   }
+  if $media_type == 'File' {
+    file { $device :
+      ensure  => 'directory',
+      mode    => '0775',
+    }
+  }
   file { "${configdir}/sd.d/device-${devname}.conf" :
     ensure  => 'file',
     content => template($template),

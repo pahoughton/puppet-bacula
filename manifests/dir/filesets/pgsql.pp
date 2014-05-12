@@ -1,8 +1,8 @@
-# postgres.pp - 2014-03-17 16:41
+# pgsql.pp - 2014-03-17 16:41
 #
 # Copyright (c) 2014 Paul Houghton <paul4hough@gmail.com>
 #
-define bacula::dir::filesets::postgresql (
+define bacula::dir::filesets::pgsql (
   $client    = undef,
   $dump_user = undef,
   $libdir    = $bacula::dir::libdir,
@@ -20,7 +20,7 @@ define bacula::dir::filesets::postgresql (
     default => $dump_user,
   }
 
-  bacula::dir::fileset { "postgresql-${jclient}" :
+  bacula::dir::fileset { "pgsql-${jclient}" :
     include => [  [ [ "|su -c '${libdir}/scripts/pglist.bash' - ${user}",
                       ],
                     [ 'signature = MD5',

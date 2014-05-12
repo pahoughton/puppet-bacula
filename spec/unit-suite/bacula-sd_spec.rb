@@ -31,7 +31,7 @@ tobject = 'bacula::sd'
       dirhost='bactestdir'
       context "with dir_host => #{dirhost}" do
         let :params do {
-            :dir_host => dirhost,
+            :director => dirhost,
           } end
 
         it { should contain_file("#{confdir}/bacula-sd.conf").
@@ -43,7 +43,6 @@ tobject = 'bacula::sd'
                  'enable' => true, })
         }
         it { should contain_file("#{confdir}/sd.d") }
-        it { should contain_bacula__sd__device__file('Default') }
       end
     end
   end

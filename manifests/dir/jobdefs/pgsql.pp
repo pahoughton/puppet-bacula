@@ -23,7 +23,7 @@ define bacula::dir::jobdefs::pgsql (
   }
   $fileset   = "pgsql-${jclient}"
 
-  bacula::dir::filesets::postgresql { $jclient :
+  bacula::dir::filesets::pgsql { $jclient :
     dump_user => $user,
     libdir    => $libdir,
   }->
