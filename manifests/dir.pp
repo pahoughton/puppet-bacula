@@ -136,6 +136,10 @@ class bacula::dir (
       media_type => 'File'
     }
   }
+  ensure_resource('file',$dirrest,{
+    ensure   => 'directory',
+    mode     => '0775',
+  })
   bacula::dir::job { 'Restore' :
     jtype           => 'Job',
     client          => $::hostname,
