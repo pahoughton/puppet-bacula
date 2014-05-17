@@ -1,5 +1,5 @@
 name 'puppet-bacula'
-version '0.0.1'
+version '0.9.0'
 source 'git://github.com/pahoughton/puppet-bacula.git'
 author 'Inkling/Puppet Labs'
 description 'Bacula defined resource types'
