@@ -6,6 +6,6 @@ forge "http://forge.puppetlabs.com"
 
 mod 'saz/sudo'
 
-mod 'postgresql',
+mod 'puppetlabs/postgresql',
   :git => 'http://github.com/pahoughton/puppetlabs-postgresql',
   :ref => 'pahoughton-devel'
