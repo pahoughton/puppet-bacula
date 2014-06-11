@@ -8,6 +8,7 @@ group :development, :test do
   gem 'bundler'
   gem 'builder','~>3.2.2'
   gem 'puppetlabs_spec_helper', :require => false
+  gem 'rake'
   gem 'rspec-puppet'
   gem 'librarian-puppet'
   gem 'puppet-lint', '~> 0.3.2'
