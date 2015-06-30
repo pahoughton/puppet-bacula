@@ -2,7 +2,7 @@
 #
 # Copyright (c) 2014 Paul Houghton <paul4hough@gmail.com>
 #
-forge "http://forge.puppetlabs.com"
+forge "https://forgeapi.puppetlabs.com"
 
 mod 'puppetlabs/postgresql'
 mod 'saz/sudo'
