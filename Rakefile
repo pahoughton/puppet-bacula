@@ -11,21 +11,34 @@ PuppetLint.configuration.disable_class_parameter_defaults
 PuppetLint.configuration.ignore_paths = FileList['**/fixtures/modules/**/**']
 
 desc "Test prep with librarian-puppet"
-task :unittest_prep do
- sh "librarian-puppet install --path=spec/fixtures/modules/"
+task :rspec_prep do
+ sh "
+if [ -d .librarian ] ; then
+  echo updating...
+  librarian-puppet update;
+else
+  echo installing...
+  librarian-puppet install --path=spec/fixtures/modules/;
+fi
+"
 end
 
-desc "Unit tests"
-RSpec::Core::RakeTask.new(:unittest) do |t|
+desc "Unit Test"
+task :unittest do
+ sh "make -C tests unittest"
+end
+
+desc "RSpec tests"
+RSpec::Core::RakeTask.new(:rspectest) do |t|
   t.pattern = 'spec/unit/**/*_spec.rb'
 end
 
 desc "Unit-suite tests w/o doc"
-RSpec::Core::RakeTask.new(:unittest_nodoc) do |t|
+RSpec::Core::RakeTask.new(:rspectest_nodoc) do |t|
   t.pattern = 'spec/unit-suite/**/*_spec.rb'
 end
 desc "Unit-suite tests w/ doc"
-RSpec::Core::RakeTask.new(:unittest_suite) do |t|
+RSpec::Core::RakeTask.new(:rspectest_suite) do |t|
   t.rspec_opts = ['--format=d']
   t.pattern = 'spec/unit-suite/**/*_spec.rb'
 end
