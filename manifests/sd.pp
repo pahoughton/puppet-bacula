@@ -42,7 +42,7 @@ class bacula::sd (
         $sd_packages = ['bacula-sd-pgsql']
       }
       default : {
-        faile("Unsupported ::operatingsystem '${::operatingsystem}'")
+        fail("Unsupported ::operatingsystem '${::operatingsystem}'")
       }
     }
   } else {
