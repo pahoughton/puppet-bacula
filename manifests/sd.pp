@@ -3,21 +3,22 @@
 # Copyright (c) 2014 Paul Houghton <paul4hough@gmail.com>
 #
 class bacula::sd (
-  $dir_host   = $::hostname,
-  $configdir  = '/etc/bacula',
-  $rundir     = '/var/run/bacula',
-  $libdir     = '/var/lib/bacula',
-  $workdir    = '/srv/bacula/work',
-  $backupdir  = '/srv/bacula/backups',
+  $dirname    = $::bacula::params::dirname,
+  $configdir  = $::bacula::params::configdir,
+  $rundir     = $::bacula::params::rundir,
+  $libdir     = $::bacula::params::libdir,
+  $workdir    = $::bacula::params::workdir,
+  $backupdir  = '/var/lib/bacula/backups',
   $max_jobs   = 2,
   $packages   = undef,
   $service    = 'bacula-sd',
-  $user       = 'bacula',
-  $group      = 'bacula',
+  $user       = $::bacula::params::user,
+  $group      = $::bacula::params::group,
+  $password   = 'bacula-sd-pass',
   $auto_label = undef,
   $is_dir     = undef,
   $template   = 'bacula/bacula-sd.conf.erb'
-  ) {
+  ) inherits ::bacula::params {
 
   File {
     owner   => $user,
@@ -30,9 +31,8 @@ class bacula::sd (
   }
   if $packages == undef {
     case $::operatingsystem {
-      'CentOS' : {
+      'CentOS', 'RedHat' : {
         $sd_packages = ['bacula-storage-common',
-                        'bacula-storage-mysql',
                         'bacula-storage-postgresql',]
       }
       'Fedora' : {
@@ -72,14 +72,14 @@ class bacula::sd (
   service { $service :
     ensure     => 'running',
     enable     => true,
-    require    => [Package[$sd_packages]]
+    require    => File["${configdir}/sd.d/empty.conf"],
   }
   if $backupdir {
     $label_media = $auto_label ? {
         true    => 'Yes',
         default => undef,
     }
-    bacula::sd::device::file { 'Backupdir' :
+    bacula::sd::device::file { 'sd-default-backupdir' :
       device      => $backupdir,
       label_media => $label_media
     }

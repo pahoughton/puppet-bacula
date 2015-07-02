@@ -3,6 +3,8 @@
 #
 status=0
 
+[ -z "$DEBUG" ] || set -x
+
 function Dbg {
   [ -n "$DEBUG" ] && echo $@
 }

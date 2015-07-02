@@ -1,26 +1,24 @@
 # DO NOT EDIT - Managed by Puppet
 #
 # Bacula Storage Daemon Configuration
-#   for <%= @hostname %>-sd
-#   via <%= @dir_host -%>-dir
 
-# Configure the Director which will manage this Storage Daemon, and the
-# Director through which we'll send our messages (will be the same) one.
+# Configure the Director which will manage this Storage Daemon, and
+# through which we'll send all messages.
 Director {
-  Name = "<%= @dir_host -%>-dir"
-  Password = "<%= @hostname -%>-sd-pass"
+  Name = "<%= @dirname %>"
+  Password = "<%= @password %>"
 }
 
 Messages {
-  Name = "<%= @hostname -%>-msg-standard"
-  Director = "<%= @dir_host -%>-dir" = all
+  Name = "messages-standard"
+  Director = "<%= @dirname %>" = all
 }
 
 # Configure the basic details for the Storage Daemon on this server
 Storage {
-  Name = "<%= @hostname -%>-sd"
+  Name = "<%= @name %>"
   Working Directory = "<%= @workdir %>"
-  PID Directory = "<%= @piddir %>"
+  PID Directory = "<%= @rundir %>"
   Maximum Concurrent Jobs = <%= @max_jobs %>
 }
 
