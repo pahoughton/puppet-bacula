@@ -5,17 +5,19 @@
 require 'spec_helper'
 
 os_rel = {
+  'RedHat' => '6.',
   'Fedora' => '20',
   'CentOS' => '6.',
   'Ubuntu' => '13.10',
 }
 os_family = {
+  'RedHat' => 'RedHat',
   'Fedora' => 'RedHat',
   'CentOS' => 'RedHat',
   'Ubuntu' => 'Debian',
 }
 tobject = 'bacula::sd'
-['Fedora','CentOS','Ubuntu'].each { |os|
+['RedHat','Fedora','CentOS','Ubuntu'].each { |os|
   confdir = '/etc/bacula'
   describe tobject, :type => :class do
     tfacts = {
@@ -28,22 +30,24 @@ tobject = 'bacula::sd'
     }
     let(:facts) do tfacts end
     context "supports facts #{tfacts}" do
-      dirhost='bactestdir'
-      context "with dir_host => #{dirhost}" do
+      dirname='bactestdir'
+      context "with dirname => #{dirname}" do
         let :params do {
-            :dir_host => dirhost,
+            :dirname => dirname,
           } end
 
         it { should contain_file("#{confdir}/bacula-sd.conf").
           with_ensure('file').
-          with_content(/#{dirhost}/)
+          with_content(/#{dirname}/).
+          with_content(/bsd@bd2test/).
+          with_content(/test-hiera-rundir/)
         }
         it { should contain_service('bacula-sd').
           with({ 'ensure' => 'running',
                  'enable' => true, })
         }
         it { should contain_file("#{confdir}/sd.d") }
-        it { should contain_bacula__sd__device__file('Backupdir') }
+        it { should contain_bacula__sd__device__file('sd-default-backupdir') }
       end
     end
   end

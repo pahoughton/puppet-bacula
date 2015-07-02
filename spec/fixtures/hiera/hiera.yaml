@@ -1,0 +1,9 @@
+---
+# 2015-07-02 (cc) <paul4hough@gmail.com>
+#
+:backends:
+  - yaml
+:hierarchy:
+  - unittest
+:yaml:
+  :datadir: 'spec/fixtures/hiera'

@@ -84,6 +84,7 @@ DoD scp $ssh_opts -r unittest.guest.dir root@$sdip:unittest
 pushd ..
 DoD scp -i tests/tester.id -o StrictHostKeyChecking=no -r `pwd`/manifests root@$sdip:unittest/modules/bacula
 popd
+exit 1
 DoD ssh $ssh_opts root@$sdip bash unittest/sd.prep.bash
 
 
