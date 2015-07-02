@@ -1,6 +1,6 @@
 # sd.pp - 2014-02-16 06:34
 #
-# Copyright (c) 2014 Paul Houghton <paul4hough@gmail.com>
+# Copyright (cc) 2014 Paul Houghton <paul4hough@gmail.com>
 #
 class bacula::sd (
   $dirname    = $::bacula::params::dirname,
