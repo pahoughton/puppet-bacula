@@ -19,6 +19,6 @@ function DoD {
 }
 
 DoD yum -y install puppet
-DoD puppet --modulepath=/root/unittest/modules apply unittest/sd.pp
+DoD puppet apply --modulepath=/root/unittest/modules unittest/sd.pp
 
 exit $status
