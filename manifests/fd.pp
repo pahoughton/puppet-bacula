@@ -5,12 +5,14 @@
 # This is installed on the client
 
 class bacula::fd (
-  $dir_host,
-  $configdir     = '/etc/bacula',
-  $piddir        = '/var/run/bacula',
-  $libdir        = '/var/lib/bacula',
-  $datadir       = '/srv/bacula',
-  $fd_packages   = undef,
+  $dirname       = $::bacula::params::dirname,
+  $configdir     = $::bacula::params::configdir,
+  $rundir        = $::bacula::params::rundir,
+  $libdir        = $::bacula::params::libdir,
+  $workdir       = $::bacula::params::workdir,
+  $backupdir     = '/var/lib/bacula/backups',
+  $password      = 'bacula-fd-pass',
+  $packages      = undef,
   $max_jobs      = 2,
   $service       = 'bacula-fd',
   $fd_only       = true,
@@ -19,27 +21,24 @@ class bacula::fd (
   $pgres_group   = undef,
   $mysql_support = true,
   $template      = 'bacula/bacula-fd.conf.erb',
-  ) {
+  ) inherits ::bacula::params {
 
-  $packages = $fd_packages ? {
+  $fdpkgs = $packages ? {
     undef   => $::osfamily ? {
       'debian' => 'bacula-fd',
       'RedHat' => 'bacula-client',
       default  => undef,
     },
-    default => $fd_packages,
+    default => $packages,
   }
 
-  package { $packages :
+  package { $fdpkgs :
     ensure => 'installed',
   }
 
-  $workdir       = "${datadir}/work"
-
   if $fd_only {
     file { [$configdir,
-            $piddir,
-            $datadir,
+            $rundir,
             $workdir,
             $libdir,
             "${libdir}/scripts",] :

@@ -5,11 +5,12 @@
 require 'spec_helper'
 
 $os_family = {
+  'RedHat' => 'redhat',
   'Fedora' => 'redhat',
   'CentOS' => 'redhat',
   'Ubuntu' => 'debian',
 }
-['Fedora','CentOS','Ubuntu'].each { |os|
+['RedHat','Fedora','CentOS','Ubuntu'].each { |os|
   describe 'bacula::fd', :type => :class do
     context "supports operating system #{os}" do
       let(:facts) do {
@@ -22,7 +23,7 @@ $os_family = {
       dirhost='bactestdir'
       context "with dir_host => #{dirhost}" do
         let :params do {
-          :dir_host => dirhost,
+          :dirname => "#{dirhost}-dir",
         } end
 
         it { should contain_file("#{configdir}/bacula-fd.conf").
