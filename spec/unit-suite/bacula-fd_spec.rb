@@ -10,6 +10,11 @@ $os_family = {
   'CentOS' => 'redhat',
   'Ubuntu' => 'debian',
 }
+$pkgs = {
+  'redhat' => 'bacula-client',
+  'debian' => 'bacula-fd',
+}
+
 ['RedHat','Fedora','CentOS','Ubuntu'].each { |os|
   describe 'bacula::fd', :type => :class do
     context "supports operating system #{os}" do
@@ -26,6 +31,7 @@ $os_family = {
           :dirname => "#{dirhost}-dir",
         } end
 
+        it { should contain_package($pkgs[$os_family[os]]) }
         it { should contain_file("#{configdir}/bacula-fd.conf").
           with_ensure('file').
           with_content(/#{dirhost}/)

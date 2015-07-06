@@ -27,7 +27,6 @@ class bacula::fd (
     undef   => $::osfamily ? {
       'debian' => 'bacula-fd',
       'RedHat' => 'bacula-client',
-      default  => undef,
     },
     default => $packages,
   }
@@ -50,7 +49,7 @@ class bacula::fd (
     ensure  => 'file',
     content => template($template),
     notify  => Service[$service],
-    require => Package[$packages],
+    require => Package[$fdpkgs],
   }
   service { $service :
     ensure  => 'running',
