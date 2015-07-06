@@ -18,20 +18,20 @@ class bacula::dir::database (
   case $backend {
     'postgresql' : {
 
-      if ! $postgresql::server::postgres_password and $adm_pass {
+      # if ! $postgresql::server::postgres_password and $adm_pass {
 
-        class { 'postgresql::server' :
-          postgres_password  => $adm_pass,
-          listen_addresses   => '*',
-        }
-      }
-      postgresql::server::db { $name :
-        owner    => $user,
-        user     => $user,
-        password => $pass,
-        require  => Class['postgresql::server'],
-        notify   => Exec[$make_db_tables_command],
-      }
+      #   class { 'postgresql::server' :
+      #     postgres_password  => $adm_pass,
+      #     listen_addresses   => '*',
+      #   }
+      # }
+      # postgresql::server::db { $name :
+      #   owner    => $user,
+      #   user     => $user,
+      #   password => $pass,
+      #   require  => Class['postgresql::server'],
+      #   notify   => Exec[$make_db_tables_command],
+      # }
     }
     default : {
       fail("unsupported db backend: ${backend}")
