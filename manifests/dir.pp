@@ -99,7 +99,7 @@ class bacula::dir (
     enable => true,
   }
   class { 'bacula::fd' :
-    dir_host      => $::hostname,
+    dirname       => "${::hostname}-dir",
     pgres_support => true,
     fd_only       => false,
   }
