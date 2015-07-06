@@ -53,7 +53,7 @@ Messages {
 # These are messages directly from the various daemons themselves.
 Messages {
   Name = "<%= @hostname -%>-msg-daemon"
-  Mail Command = "/usr/lib/bacula/bsmtp -h localhost -f bacula@<%= hostname -%> -s \"Bacula Notice (from Director %d)\" %r"
+  Mail Command = "/usr/lib/bacula/bsmtp -h localhost -f bacula@<%= @hostname -%> -s \"Bacula Notice (from Director %d)\" %r"
   Mail = <%= @mail_to -%> = all, !skipped
   Console = all, !skipped, !saved
   Append = "/var/log/bacula/<%= @hostname -%>-dir.log" = all, !skipped

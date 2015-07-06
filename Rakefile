@@ -30,6 +30,7 @@ end
 
 desc "RSpec tests"
 RSpec::Core::RakeTask.new(:rspectest) do |t|
+#  t.rspec_opts = ['--format=d']
   t.pattern = 'spec/unit/**/*_spec.rb'
 end
 

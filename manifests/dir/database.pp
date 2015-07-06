@@ -3,7 +3,7 @@
 # Copyright (c) 2014 Paul Houghton <paul4hough@gmail.com>
 #
 class bacula::dir::database (
-  $srv_pass,
+  $adm_pass = undef,
   $host     = 'localhost',
   $backend  = 'postgresql',
   $user     = 'bacula',
@@ -18,10 +18,10 @@ class bacula::dir::database (
   case $backend {
     'postgresql' : {
 
-      if ! $postgresql::server::postgres_password and $srv_pass {
+      if ! $postgresql::server::postgres_password and $adm_pass {
 
         class { 'postgresql::server' :
-          postgres_password  => $srv_pass,
+          postgres_password  => $adm_pass,
           listen_addresses   => '*',
         }
       }

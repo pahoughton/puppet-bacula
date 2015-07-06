@@ -1,5 +1,5 @@
 #!/bin/bash
-# 2015-06-22 (cc) <paul4hough@gmail.com>
+# 2015-07-03 (cc) <paul4hough@gmail.com>
 #
 status=0
 
@@ -19,6 +19,6 @@ function DoD {
 }
 
 DoD yum -y install puppet
-DoD puppet apply --modulepath=/root/unittest/modules unittest/sdsite.pp
+DoD puppet apply --modulepath=/root/unittest/modules unittest/fdsite.pp
 
 exit $status

@@ -43,9 +43,9 @@ function start-libvirt-guest {
       test.xml.tmpl > $guestname.xml
   fi
 
-  DoD virsh create $guestname.xml
-  DoD sleep 20
   DoD chmod 600 tester.id
+  DoD virsh create $guestname.xml
+  DoD sleep 30
 
   vgip=
   while [ -z "$vgip" ]; do
@@ -53,6 +53,11 @@ function start-libvirt-guest {
     if [ -n "$vgip" ] ; then
       echo $guestname.local > $guestname.hostname
       echo $vgip > $guestname.vgip
+      while ! ssh $ssh_opts root@$vgip cat /dev/null ; do
+	sleep 10;
+	let scnt=scnt+1
+	if [ $scnt -gt 6 ] ; then Die no connect ; fi
+      done
 
       # * * * RedHat 6 Specific
       # Setting hostname so dnsmasq receives it in the dhcp request
@@ -66,7 +71,6 @@ function start-libvirt-guest {
       ssh $ssh_opts root@$vgip shutdown -r now
       # make sure our new host name has come up.
       sleep 30
-      DoD ssh $ssh_opts root@$vgip cat /dev/null
       DoD grep $guestname /var/lib/libvirt/dnsmasq/default.leases > /dev/null
 
       break;
@@ -78,29 +82,35 @@ function start-libvirt-guest {
   done
 }
 
+start-libvirt-guest tbacula-fd 29
+fdip=`cat tbacula-fd.vgip`
+DoD scp $ssh_opts -r unittest.guest.dir root@$fdip:unittest
+pushd ..
+DoD scp -i tests/tester.id -o StrictHostKeyChecking=no -r `pwd`/manifests root@$fdip:unittest/modules/bacula
+DoD scp -i tests/tester.id -o StrictHostKeyChecking=no -r `pwd`/templates root@$fdip:unittest/modules/bacula
+popd
+DoD ssh $ssh_opts root@$fdip bash unittest/fd.prep.bash
+
+
 start-libvirt-guest tbacula-sd 28
 sdip=`cat tbacula-sd.vgip`
 DoD scp $ssh_opts -r unittest.guest.dir root@$sdip:unittest
 pushd ..
 DoD scp -i tests/tester.id -o StrictHostKeyChecking=no -r `pwd`/manifests root@$sdip:unittest/modules/bacula
+DoD scp -i tests/tester.id -o StrictHostKeyChecking=no -r `pwd`/templates root@$sdip:unittest/modules/bacula
 popd
-exit 1
 DoD ssh $ssh_opts root@$sdip bash unittest/sd.prep.bash
 
 
 start-libvirt-guest tbacula-dir 27
-start-libvirt-guest tbacula-fd 29
-
 dirip=`cat tbacula-dir.vgip`
-fdip=`cat tbacula-fd.vgip`
-
-# guest prep
-for ip in $dirip $fdip ; do
-  DoD scp $ssh_opts -r unittest.guest.dir root@$ip:unittest
-
-done
+DoD scp $ssh_opts -r unittest.guest.dir root@$dirip:unittest
+pushd ..
+DoD scp -i tests/tester.id -o StrictHostKeyChecking=no -r `pwd`/manifests root@$dirip:unittest/modules/bacula
+DoD scp -i tests/tester.id -o StrictHostKeyChecking=no -r `pwd`/templates root@$dirip:unittest/modules/bacula
+popd
 DoD ssh $ssh_opts root@$dirip bash unittest/dir.prep.bash
-DoD ssh $ssh_opts root@$fdip bash unittest/fd.prep.bash
+
 
 # the tests
 DoD ssh $ssh_opts root@$dirip bash unittest/unittest.bash

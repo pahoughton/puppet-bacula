@@ -4,42 +4,41 @@
 #
 # No spaces in subcomponent names.
 class bacula::dir (
-  $configdir        = '/etc/bacula',
-  $rundir           = '/var/run/bacula',
-  $libdir           = '/var/lib/bacula',
-  $homedir          = '/srv/bacula',
-  $workdir          = '/srv/bacula/work',
-  $backupdir        = '/srv/bacula/backups',
-  $restoredir       = '/srv/bacula/restore',
-  $db_srv_pass      = undef,
-  $db_backend       = 'postgresql',
-  $db_host          = 'localhost',
-  $db_user          = 'bacula',
-  $db_pass          = 'bacula',
-  $db_name          = 'bacula',
-  $pg_dumpdir       = '/srv/postgres/dump', # Fixme
-  $max_jobs         = 5,
-  $mail_to          = 'root@localhost',
-  $sd_host          = undef,
-  $user             = 'bacula',
-  $group            = 'bacula',
-  $postgresql_user  = 'postgres',
-  $postgresql_group = 'postgres',
-  ) {
+  $dirname      = $::bacula::params::dirname,
+  $configdir    = $::bacula::params::configdir,
+  $rundir       = $::bacula::params::rundir,
+  $libdir       = $::bacula::params::libdir,
+  $workdir      = $::bacula::params::workdir,
+  $restoredir   = $::bacula::params::restoredir,
+  $db_backend   = 'postgresql',
+  $db_host      = 'localhost',
+  $db_adm_pass  = undef,
+  $db_user      = 'bacula',
+  $db_pass      = 'bacula',
+  $db_name      = 'bacula',
+  $db_dumpdir   = "$::bacula::params::workdir/dump", # Fixme
+  $max_jobs     = 5,
+  $mail_to      = 'root@localhost',
+  $sd_addr      = undef,
+  $user         = $::bacula::params::user,
+  $group        = $::bacula::params::group,
+#  $db_nix_user  = 'postgres',
+#  $db_nix_group = 'postgres',
+  ) inherits ::bacula::params {
 
   case $::operatingsystem {
     'Fedora' : {
-      $package    = 'bacula-director'
+      $packages   = ['bacula-director']
       $service    = 'bacula-dir'
     }
-    'CentOS' : {
-      $package    = "bacula-director-${db_backend}"
+    'CentOS','RedHat' : {
+      $packages   = ["bacula-director-${db_backend}"]
       $service    = 'bacula-dir'
     }
     'Ubuntu' : {
       case $db_backend {
         'postgresql' : {
-          $package    = ['bacula-common-pgsql','bacula-director-pgsql']
+          $packages   = ['bacula-common-pgsql','bacula-director-pgsql']
         }
         default : {
           fail("Ubuntu unsupported db_backend ${db_backend}")
@@ -47,9 +46,12 @@ class bacula::dir (
       }
       $service    = 'bacula-director'
     }
+    default : {
+      fail("unsupported operatingsystem '$::operatingsystem'")
+    }
   }
 
-  package { $package :
+  package { $packages :
     ensure => 'installed',
   }
 
@@ -61,7 +63,7 @@ class bacula::dir (
   }
 
   class { 'bacula::dir::database' :
-    srv_pass => $db_srv_pass,
+    adm_pass => $db_adm_pass,
     backend  => $db_backend,
     host     => $db_host,
     name     => $db_name,
@@ -70,7 +72,6 @@ class bacula::dir (
   }
 
   file { [$configdir,
-          $homedir,
           $rundir,
           $libdir,
           "${libdir}/scripts",
@@ -107,9 +108,9 @@ class bacula::dir (
   }
   class { 'bacula::bconsole' : }
 
-  if $sd_host {
+  if $sd_addr {
     bacula::dir::storage { 'Default' :
-      sd_host    => $sd_host,
+      sd_host    => $sd_addr,
       device     => 'Default',
       media_type => 'File'
     }
