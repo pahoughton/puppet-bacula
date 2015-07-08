@@ -26,6 +26,17 @@ function DoD {
   $@ || Die $@
 }
 
+function wait4ssh {
+  ip=$1
+  scnt=0
+  while ! ssh $ssh_opts root@$ip cat /dev/null ; do
+    sleep 10;
+    let scnt=scnt+1
+    if [ $scnt -gt 9 ] ; then Die echo no connect ; fi
+    echo again
+  done
+}
+
 function start-libvirt-guest {
   guestname=$1
   guestnum=$2
@@ -45,7 +56,7 @@ function start-libvirt-guest {
 
   DoD chmod 600 tester.id
   DoD virsh create $guestname.xml
-  DoD sleep 30
+  DoD sleep 10
 
   vgip=
   while [ -z "$vgip" ]; do
@@ -53,12 +64,7 @@ function start-libvirt-guest {
     if [ -n "$vgip" ] ; then
       echo $guestname.local > $guestname.hostname
       echo $vgip > $guestname.vgip
-      while ! ssh $ssh_opts root@$vgip cat /dev/null ; do
-	sleep 10;
-	let scnt=scnt+1
-	if [ $scnt -gt 6 ] ; then Die no connect ; fi
-      done
-
+      wait4ssh $vgip
       # * * * RedHat 6 Specific
       # Setting hostname so dnsmasq receives it in the dhcp request
       #
@@ -70,7 +76,8 @@ function start-libvirt-guest {
 
       ssh $ssh_opts root@$vgip shutdown -r now
       # make sure our new host name has come up.
-      sleep 30
+      sleep 20 # make sure it shuts down
+      wait4ssh $vgip
       DoD grep $guestname /var/lib/libvirt/dnsmasq/default.leases > /dev/null
 
       break;
@@ -78,7 +85,7 @@ function start-libvirt-guest {
       sleep 15
     fi
     let tcnt=tcnt+1
-    if [ $tcnt -gt 5 ] ; then Die no ip ; fi
+    if [ $tcnt -gt 6 ] ; then Die no ip ; fi
   done
 }
 
