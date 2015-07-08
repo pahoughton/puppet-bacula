@@ -28,7 +28,7 @@ define bacula::dir::jobdefs::postgresql (
     libdir    => $libdir,
   }->
   bacula::dir::job { "postgresql-${jclient}" :
-    client         => $client,
+    client         => $jclient,
     level          => 'Full',
     jobdefs        => 'Default',
     pool           => $pool,

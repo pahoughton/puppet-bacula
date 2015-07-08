@@ -27,6 +27,14 @@ lsbname = {
   }
 }
 
+ospkgs = {
+  'RedHat' => "bacula-director-postgresql",
+  'Fedora' => 'bacula-director',
+}
+ossvc = {
+  'RedHat' => 'bacula-dir',
+  'Fedora' => 'bacula-dir',
+}
 
 supported.keys.each { |fam|
   osfam = supported[fam]
@@ -44,6 +52,8 @@ supported.keys.each { |fam|
         let(:facts) do tfacts end
         context "supports facts #{tfacts}" do
           it { should contain_class(tobject) }
+          it { should contain_package(ospkgs[os]) }
+          it { should contain_service(ossvc[os]) }
         end
       end
     }

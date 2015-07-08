@@ -18,38 +18,16 @@ class bacula::dir (
   $db_name      = 'bacula',
   $db_dumpdir   = "$::bacula::params::workdir/dump", # Fixme
   $max_jobs     = 5,
+  $packages     = $::bacula::params::dirpkgs,
+  $service      = $::bacula::params::dirsvc,
   $mail_to      = 'root@localhost',
-  $sd_addr      = undef,
   $user         = $::bacula::params::user,
   $group        = $::bacula::params::group,
 #  $db_nix_user  = 'postgres',
 #  $db_nix_group = 'postgres',
+  $sdaddr      = $::bacula::params::sdaddr,
   ) inherits ::bacula::params {
 
-  case $::operatingsystem {
-    'Fedora' : {
-      $packages   = ['bacula-director']
-      $service    = 'bacula-dir'
-    }
-    'CentOS','RedHat' : {
-      $packages   = ["bacula-director-${db_backend}"]
-      $service    = 'bacula-dir'
-    }
-    'Ubuntu' : {
-      case $db_backend {
-        'postgresql' : {
-          $packages   = ['bacula-common-pgsql','bacula-director-pgsql']
-        }
-        default : {
-          fail("Ubuntu unsupported db_backend ${db_backend}")
-        }
-      }
-      $service    = 'bacula-director'
-    }
-    default : {
-      fail("unsupported operatingsystem '$::operatingsystem'")
-    }
-  }
 
   package { $packages :
     ensure => 'installed',
@@ -59,7 +37,7 @@ class bacula::dir (
     owner   => $user,
     group   => $group,
     notify  => Service[$service],
-    require => Package[$package],
+    require => Package[$packages],
   }
 
   class { 'bacula::dir::database' :
@@ -97,6 +75,8 @@ class bacula::dir (
   service { $service :
     ensure => 'running',
     enable => true,
+    require => [Package[$packages],
+                File["${configdir}/bacula-dir.conf"]],
   }
   class { 'bacula::fd' :
     dirname       => "${::hostname}-dir",
@@ -108,9 +88,9 @@ class bacula::dir (
   }
   class { 'bacula::bconsole' : }
 
-  if $sd_addr {
+  if $sdaddr {
     bacula::dir::storage { 'Default' :
-      sd_host    => $sd_addr,
+      sd_host    => $sdaddr,
       device     => 'Default',
       media_type => 'File'
     }
@@ -151,7 +131,7 @@ class bacula::dir (
   # }
   case $db_backend {
     'postgresql' : {
-      bacula::dir::jobdefs::postgresql { $::hostname :
+      bacula::dir::jobdefs::postgresql { "${::hostname}-pgsql-jdef" :
         libdir => $libdir
       }
     }
