@@ -31,6 +31,11 @@ class bacula::fd (
     default => $packages,
   }
 
+  $fdname = $title ? {
+    undef   => "${::hostname}-bacula-fd",
+    default =>  $title,
+  }
+
   package { $fdpkgs :
     ensure => 'installed',
   }
@@ -64,20 +69,20 @@ class bacula::fd (
         default  => 'postgres',
       },
       default    => $pgres_user,
-    }
-    $pg_group  = $pgres_group ? {
-      undef      => $::operatingsystem ? {
-        'Darwin' => '_postgres',
-        default  => 'postgres',
-      },
-      default    => $pgres_group,
-    }
-    $pg_dumpdir = "${workdir}/postgres"
-    file { [$pg_dumpdir, "${pg_dumpdir}/fifo"] :
-      ensure  => 'directory',
-      owner   => $pg_user,
-      group   => $pg_group,
-      mode    => '0775',
+      $pg_group  = $pgres_group ? {
+        undef      => $::operatingsystem ? {
+          'Darwin' => '_postgres',
+          default  => 'postgres',
+        },
+        default    => $pgres_group,
+      }
+      $pg_dumpdir = "${workdir}/postgres"
+      file { [$pg_dumpdir, "${pg_dumpdir}/fifo"] :
+        ensure  => 'directory',
+        owner   => $pg_user,
+        group   => $pg_group,
+        mode    => '0775',
+      }
     }
     file { "${libdir}/scripts/pgdump.bash" :
       ensure  => 'file',
