@@ -16,10 +16,10 @@ class bacula::fd (
   $max_jobs      = 2,
   $service       = 'bacula-fd',
   $fd_only       = true,
-  $pgres_support = true,
+  $pgres_support = false,
   $pgres_user    = undef,
   $pgres_group   = undef,
-  $mysql_support = true,
+  $mysql_support = false,
   $template      = 'bacula/bacula-fd.conf.erb',
   ) inherits ::bacula::params {
 
