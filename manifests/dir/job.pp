@@ -3,7 +3,7 @@
 # Copyright (c) 2014 Paul Houghton <paul4hough@gmail.com>
 #
 define bacula::dir::job (
-  $client,
+  $client            = undef, # defaults to title
   $configdir         = '/etc/bacula',
   $fileset           = undef,
   $jtype             = 'Job',
@@ -11,10 +11,10 @@ define bacula::dir::job (
   $level             = undef,
   $accurate          = undef,
   $verify_job        = undef,
-  $jobdefs           = undef,
+  $jobdefs           = 'Default',
   $bootstrap         = undef,
   $write_bootstrap   = undef,
-  $messages          = undef,
+  $messages          = $::bacula::params::jobmesgs,
   $pool              = undef,
   $full_pool         = undef,
   $diff_pool         = undef,
@@ -61,16 +61,19 @@ define bacula::dir::job (
 
   ) {
 
-  $job = $name ? {
+  include ::bacula::params
+
+  $bclient = $client ? {
     undef   => $title,
-    default => $name,
+    default => $client,
   }
 
-  file { "${configdir}/dir.d/${jtype}-${job}.conf" :
+  file { "${configdir}/dir.d/${jtype}-${title}.conf" :
     ensure  => 'file',
     content => template($template),
     notify  => Service[$bacula::dir::service],
-    require => File["${configdir}/dir.d"],
+    require => [File["${configdir}/dir.d"],
+                Class[::bacula::params]],
   }
 
 }

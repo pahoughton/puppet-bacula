@@ -11,33 +11,24 @@
 # connect to it and work with our system
 Director {
   Name = "<%= @hostname -%>-dir"
-  Password = "<%= @hostname -%>-dir-pass"
+  Password = "<%= @dirpass %>"
   Query File = "/etc/bacula/query.sql"
   Working Directory = "<%= @workdir %>"
   PID Directory = "/var/run/bacula"
   Maximum Concurrent Jobs = <%= @max_jobs %>
-  Messages = "<%= @hostname -%>-msg-daemon"
+  Messages = "MsgDaemon"
 }
 
-# Backup data catalog
+# Generic catalog service
 Catalog {
-  Name = "<%= @hostname -%>-cat"
-  dbname = "<%= @db_name %>"
-  dbdriver = dbi:<%= @db_backend %>
-<% unless @db_backend == 'sqlite' -%>
-  dbaddress = <%= @db_host %>
-<% if @db_port -%>
-  dbport = <%= @db_port %>
-<% end -%>
-  user = <%= @db_user %>
-  password = <%= @db_pass %>
-<% end -%>
+  Name = <%= @catalogname %>;
+  dbname = "bacula"; dbuser = "bacula"; dbpassword = ""
 }
 
 # MESSAGES
 # Configure how the directory will log and/or send messages.
 Messages {
-  Name = "<%= @hostname -%>-msg-standard"
+  Name = "<%= @jobmesgs %>"
   Mail Command = "/usr/lib/bacula/bsmtp -h localhost -f bacula@<%= @hostname -%> -s \"Bacula %t %e (for %c)\" %r"
   Operator Command = "/usr/lib/bacula/bsmtp -h localhost -f bacula@<%= @hostname -%> -s \"Bacula Intervention Required (for %c)\" %r"
   Mail = <%= @mail_to -%> = all, !skipped
@@ -52,7 +43,7 @@ Messages {
 
 # These are messages directly from the various daemons themselves.
 Messages {
-  Name = "<%= @hostname -%>-msg-daemon"
+  Name = "MsgDaemon"
   Mail Command = "/usr/lib/bacula/bsmtp -h localhost -f bacula@<%= @hostname -%> -s \"Bacula Notice (from Director %d)\" %r"
   Mail = <%= @mail_to -%> = all, !skipped
   Console = all, !skipped, !saved

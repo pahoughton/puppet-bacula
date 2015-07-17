@@ -31,11 +31,11 @@ class bacula::sd (
   }
   if $packages == undef {
     case $::operatingsystem {
-      'CentOS', 'RedHat' : {
+      'CentOS' : {
         $sd_packages = ['bacula-storage-common',
                         'bacula-storage-postgresql',]
       }
-      'Fedora' : {
+      'Fedora', 'RedHat' : {
         $sd_packages = ['bacula-storage',]
       }
       'Ubuntu' : {

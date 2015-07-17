@@ -21,7 +21,7 @@ define bacula::dir::filesets::postgresql (
   }
 
   bacula::dir::fileset { "postgresql-${jclient}" :
-    include => [  [ [ "|su -c '${libdir}/scripts/pglist.bash' - ${user}",
+    includes => [  [ [ "|su -c '${libdir}/scripts/pglist.bash' - ${user}",
                       ],
                     [ 'signature = MD5',
                       'readfifo = yes'

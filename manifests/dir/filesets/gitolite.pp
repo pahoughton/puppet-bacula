@@ -7,7 +7,7 @@ define bacula::dir::filesets::gitolite (
   ) {
   $client = $title
   bacula::dir::fileset { "gitolite-${client}" :
-    include  => [ [ [$basedir],
+    includes  => [ [ [$basedir],
                     [ 'compression = GZIP9',
                       'signature = MD5',
                       ],

@@ -2,6 +2,7 @@
 #
 class bacula::params (
   $dirname      = 'bacula-dir', # bacula director name
+  $dirpass      = 'bacula-dir-pass',
   $configdir    = '/etc/bacula',
   $rundir       = '/var/run/bacula',
   $libdir       = '/var/lib/bacula',
@@ -9,36 +10,35 @@ class bacula::params (
   $restoredir   = '/var/tmp',
   $user         = 'bacula',
   $group        = 'bacula',
-  $db_srv_pass  = undef,
-  $db_backend   = 'postgresql',
-  $db_host      = 'localhost',
-  $db_user      = 'bacula',
-  $db_pass      = 'bacula',
-  $db_name      = 'bacula',
-  $pg_dumpdir   = '/srv/postgres/dump', # Fixme
   $max_jobs     = 5,
   $mail_to      = 'root@localhost',
+  $catalogname  = 'BacCatalog',
+  $dbbackend    = 'pgsql',
+  $dbhost       = 'localhost',
+  $dbname       = 'bacula',
+  $dbuser       = 'bacula',
+  $dbpass       = 'bacula',
+  $jobmesgs     = 'JobMesgs',
+  $fdpass       = "bacula-fd-pass",
   $sd_host      = undef,
-  $db_nix_user  = 'postgres',
-  $db_nix_group = 'postgres',
   $sdaddr       = 'bacula-sd',
   ) {
   case $::operatingsystem {
-    'Fedora' : {
+    'Fedora','RedHat' : {
       $dirpkgs   = ['bacula-director']
       $dirsvc    = 'bacula-dir'
     }
-    'CentOS','RedHat' : {
-      $dirpkgs   = ["bacula-director-${db_backend}"]
+    'CentOS' : {
+      $dirpkgs   = ["bacula-director"]
       $dirsvc    = 'bacula-dir'
     }
     'Ubuntu' : {
       case $db_backend {
         'postgresql' : {
-          $dirpkgs   = ['bacula-common-pgsql','bacula-director-pgsql']
+          $dirpkgs   = ['bacula-director']
         }
         default : {
-          fail("Ubuntu unsupported db_backend ${db_backend}")
+          $dirpkgs   = ['bacula-common-pgsql','bacula-director-pgsql']
         }
       }
       $dirsvc    = 'bacula-director'

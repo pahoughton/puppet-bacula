@@ -1,12 +1,8 @@
-# bacula-dir_spec.rb - 2014-03-15 08:42
-#
-# Copyright (c) 2014 Paul Houghton <paul4hough@gmail.com>
-#
-# database args validated by database class tests
+# 2015-07-14 (cc) <paul4hough@gmail.com>
 #
 require 'spec_helper'
 
-tobject = 'bacula::dir'
+tobject = 'bacula::bconsole'
 
 supported = {
   'RedHat' => {
@@ -14,14 +10,9 @@ supported = {
     'CentOS' => ['6','7'],
     }
 }
-ospkgs = {
-  'RedHat' => "bacula-director",
-  'CentOS' => 'bacula-director',
-}
-ossvc = {
-  'RedHat' => 'bacula-dir',
-  'CentOS' => 'bacula-dir',
-}
+
+cfgdir = '/etc/bacula'
+
 
 supported.keys.each { |fam|
   osfam = supported[fam]
@@ -34,11 +25,11 @@ supported.keys.each { |fam|
           :operatingsystemrelease => rel,
           :os_maj_version         => rel,
         }
-        let(:facts) do tfacts end
+        let (:facts) {tfacts}
         context "supports facts #{tfacts}" do
           it { should contain_class(tobject) }
-          it { should contain_package(ospkgs[os]) }
-          it { should contain_service(ossvc[os]) }
+          it { should contain_package('bacula-console') }
+          it { should contain_file("#{cfgdir}/bconsole.conf") }
         end
       end
     }

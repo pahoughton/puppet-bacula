@@ -3,16 +3,13 @@
 # Copyright (c) 2014 Paul Houghton <paul4hough@gmail.com>
 #
 class bacula::bconsole (
-  $configdir = '/etc/bacula',
-  $dir_host  = $::hostname,
-  $dir_pass  = undef,
+  $dirname   = $::bacula::params::dirname,
+  $dirpass   = $::bacula::params::dirpass,
+  $configdir = $::bacula::params::configdir,
+  $diraddr   = $::hostname,
   $template  = 'bacula/bconsole.conf.erb',
-  ) {
+  ) inherits ::bacula::params {
 
-  $password = $dir_pass ? {
-    undef   => "${dir_host}-dir-pass",
-    default => $dir_pass,
-  }
   package { 'bacula-console' :
     ensure => 'installed',
   }

@@ -17,7 +17,11 @@ function DoD {
   $@ || Die $@
 }
 
-DoD yum -y install puppet
-DoD puppet apply --modulepath=/root/unittest/modules unittest/dirsite.pp
+DoD yum -y install puppet rubygems
+DoD puppet module install puppetlabs-postgresql
+[ -d /etc/puppet/modules/bacula ] || \
+  mv unittest/modules/bacula /etc/puppet/modules
+
+DoD puppet apply unittest/dirsite.pp
 
 exit $status

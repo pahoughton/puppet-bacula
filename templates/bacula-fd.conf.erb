@@ -12,9 +12,9 @@ Director {
 
 # Now configure the actual File Daemon
 FileDaemon {
-  Name = "<%= @fdname -%>"
+  Name = "<%= @fdname -%>-fd"
   Working Directory = "<%= @workdir %>"
-  PID Directory = "<%= @piddir %>"
+  PID Directory = "<%= @rundir %>"
   Maximum Concurrent Jobs = <%= @max_jobs %>
 }
 

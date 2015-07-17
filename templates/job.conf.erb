@@ -9,7 +9,7 @@
 
 <%= @jtype %> {
 <% if @client -%>
-  Client = "<%= @client %>-fd"
+  Client = "<%= @bclient %>-fd"
 <% end -%>
   Name = "<%= @title %>"
 <% if @fileset -%>
@@ -168,4 +168,4 @@
 <% if @write_part -%>
   Write Part After Job = "<%= @write_part %>"
 <% end -%>
-}  
+}

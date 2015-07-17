@@ -12,7 +12,7 @@ FileSet {
 <% if @enable_vss -%>
   Enable VSS = <%= @enable_vss %>
 <% end -%>
-<% @include.each do |inc| %>
+<% @includes.each do |inc| %>
   Include {
 <% if inc[1] -%>
     Options {

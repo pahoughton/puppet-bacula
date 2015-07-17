@@ -34,20 +34,13 @@ $pkgs = {
         it { should contain_package($pkgs[$os_family[os]]) }
         it { should contain_file("#{configdir}/bacula-fd.conf").
           with_ensure('file').
-          with_content(/#{dirhost}/)
+          with_content(/#{dirhost}/).
+          with_content(/bacula-fd-pass/)
         }
         it { should contain_service('bacula-fd').
           with({ 'ensure' => 'running',
                  'enable' => true, })
         }
-        it { should contain_file('/var/lib/bacula/scripts/pglist.bash') }
-        it { should contain_file('/var/lib/bacula/scripts/pgdump.bash') }
-        it { should contain_file('/var/lib/bacula/scripts/pgclean.bash') }
-        it { should contain_file('/var/lib/bacula/scripts/mylist.bash') }
-        it { should contain_file('/var/lib/bacula/scripts/mydump.bash').
-          with( 'content' => /dumpdir=.*mysql/ )
-        }
-        it { should contain_file('/var/lib/bacula/scripts/myclean.bash') }
       end
     end
   end

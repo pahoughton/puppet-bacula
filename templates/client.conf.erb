@@ -6,10 +6,10 @@
 # DO NOT EDIT - Managed by Puppet
 #
 # Bacula Director Client Configuration
-#   for <%= @fd_host %>-fd
+#   for <%= @fdname %>-fd
 Client {
-  Name = "<%= @fd_host -%>-fd"
-  Address = "<%= @fd_host -%>"
+  Name = "<%= @fdname -%>-fd"
+  Address = "<%= @fdname -%>"
   Catalog = "<%= @catalogname -%>"
   Password = "<%= @password -%>"
 <% if @f_retention -%>

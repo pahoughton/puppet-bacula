@@ -7,7 +7,7 @@ define bacula::dir::fileset (
   $configdir      = '/etc/bacula',
   $ignore_changes = undef,
   $enable_vss     = undef,
-  $include        = undef,
+  $includes        = undef,
   $options        = undef,
   $excludes       = undef,
   $template       = 'bacula/fileset.conf.erb',

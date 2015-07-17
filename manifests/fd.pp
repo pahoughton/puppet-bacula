@@ -11,7 +11,7 @@ class bacula::fd (
   $libdir        = $::bacula::params::libdir,
   $workdir       = $::bacula::params::workdir,
   $backupdir     = '/var/lib/bacula/backups',
-  $password      = 'bacula-fd-pass',
+  $password      = $::bacula::params::fdpass,
   $packages      = undef,
   $max_jobs      = 2,
   $service       = 'bacula-fd',
@@ -32,7 +32,7 @@ class bacula::fd (
   }
 
   $fdname = $title ? {
-    undef   => "${::hostname}-bacula-fd",
+    undef   => "${::hostname}",
     default =>  $title,
   }
 
@@ -69,20 +69,20 @@ class bacula::fd (
         default  => 'postgres',
       },
       default    => $pgres_user,
-      $pg_group  = $pgres_group ? {
-        undef      => $::operatingsystem ? {
-          'Darwin' => '_postgres',
-          default  => 'postgres',
-        },
-        default    => $pgres_group,
-      }
-      $pg_dumpdir = "${workdir}/postgres"
-      file { [$pg_dumpdir, "${pg_dumpdir}/fifo"] :
-        ensure  => 'directory',
-        owner   => $pg_user,
-        group   => $pg_group,
-        mode    => '0775',
-      }
+    }
+    $pg_group  = $pgres_group ? {
+      undef      => $::operatingsystem ? {
+        'Darwin' => '_postgres',
+        default  => 'postgres',
+      },
+      default    => $pgres_group,
+    }
+    $pg_dumpdir = "${workdir}/postgres"
+    file { [$pg_dumpdir, "${pg_dumpdir}/fifo"] :
+      ensure  => 'directory',
+      owner   => $pg_user,
+      group   => $pg_group,
+      mode    => '0775',
     }
     file { "${libdir}/scripts/pgdump.bash" :
       ensure  => 'file',

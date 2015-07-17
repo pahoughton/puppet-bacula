@@ -3,49 +3,38 @@
 # Copyright (c) 2014 Paul Houghton <paul4hough@gmail.com>
 #
 class bacula::dir::database (
-  $adm_pass = undef,
-  $host     = 'localhost',
-  $backend  = 'postgresql',
-  $user     = 'bacula',
-  $pass     = 'bacula',
+  $backend     = $::bacula::params::dbbackend,
+  $install_srv = $::bacula::params::install_dbsrv,
+  $srv_pass    = $::bacula::params::dbrv_pass,
+  $host        = $::bacula::params::dbhost,
+  $dbname      = $::bacula::params::dbname,
+  $user        = $::bacula::params::dbuser,
+  $pass        = $::bacula::params::dbpass,
 ) {
 
-  $make_db_tables_command = $::operatingsystem ? {
-    'CentOS'  => "/usr/libexec/bacula/make_${backend}_tables ${db_params}",
-    default   => "/usr/libexec/bacula/make_bacula_tables ${backend} ${db_params}",
-  }
 
   case $backend {
-    'postgresql' : {
-
-      # if ! $postgresql::server::postgres_password and $adm_pass {
-
-      #   class { 'postgresql::server' :
-      #     postgres_password  => $adm_pass,
-      #     listen_addresses   => '*',
-      #   }
-      # }
-      # postgresql::server::db { $name :
-      #   owner    => $user,
-      #   user     => $user,
-      #   password => $pass,
-      #   require  => Class['postgresql::server'],
-      #   notify   => Exec[$make_db_tables_command],
-      # }
+    'pgsql' : {
+      $make_db_tables_command = "/usr/libexec/bacula/make_postgresql_tables"
+      class { 'postgresql::server' :
+        listen_addresses           => '*',
+      }
+      postgresql::server::db { $dbname :
+        owner    => $user,
+        user     => $user,
+        password => postgresql_password($user, $pass),
+        require  => Class['postgresql::server'],
+        notify   => Exec[$make_db_tables_command],
+      }
     }
     default : {
       fail("unsupported db backend: ${backend}")
     }
   }
 
-  $db_params = $backend ? {
-    'sqlite'      => '',
-    'mysql'       => "--user=${user} --password=${pass}",
-    'postgresql'  => '',
-  }
   $make_db_tables_user = $backend ? {
-    'postgresql' => $user,
-    default      => root,
+    'pgsql'  => $user,
+    default  => root,
   }
   exec { $make_db_tables_command :
     command     => $make_db_tables_command,

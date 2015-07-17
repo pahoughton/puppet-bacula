@@ -5,11 +5,9 @@
 # DO NOT EDIT - Managed by Puppet
 #
 # Bacula Director Console Configuration
-#   for <%= @dir_host %>-fd
+#   for <%= @dirname %>-fd
 Director {
-<% if @name -%>
-  Name = "<%= @name %>"
-<% end -%>
-  Address = "<%= @dir_host %>"
-  Password = "<%= @password %>"
+  Name = "<%= @diraddr %>-dir"
+  Address = "<%= @diraddr %>"
+  Password = "<%= @dirpass %>"
 }

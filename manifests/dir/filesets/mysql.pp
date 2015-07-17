@@ -7,12 +7,12 @@ define bacula::dir::filesets::mysql (
   ) {
   $client = $title
   bacula::dir::fileset { "mysql-${client}" :
-    include => [  [ [ "|${libdir}/scripts/mylist.bash",
-                      ],
-                    [ 'signature = MD5',
-                      'readfifo = yes'
-                      ],
-                    ],
-                  ],
+    includes => [  [ [ "|${libdir}/scripts/mylist.bash",
+                       ],
+                     [ 'signature = MD5',
+                       'readfifo = yes'
+                       ],
+                     ],
+                   ],
   }
 }

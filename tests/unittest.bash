@@ -18,7 +18,6 @@ function Die {
   virsh shutdown tbacula-dir
   virsh shutdown tbacula-sd
   virsh shutdown tbacula-fd
-  # chmod 644 tester.id
   exit 1
 }
 #DoOrDie
@@ -69,8 +68,8 @@ function start-libvirt-guest {
       # Setting hostname so dnsmasq receives it in the dhcp request
       #
       # DoD scp $ssh_opts $guestname.hostname root@$vgip:/etc/hostname
-      ssh $ssh_opts root@$vgip sed -i s/HOSTNAME=.*/HOSTNAME=$guestname.local/ /etc/sysconfig/network
-      echo DHCP_HOSTNAME=$guestname.local | \
+      ssh $ssh_opts root@$vgip sed -i s/HOSTNAME=.*/HOSTNAME=$guestname/ /etc/sysconfig/network
+      echo DHCP_HOSTNAME=$guestname | \
         ssh $ssh_opts root@$vgip 'cat >> /etc/sysconfig/network-scripts/ifcfg-eth0'
       # * * * End
 
@@ -88,6 +87,17 @@ function start-libvirt-guest {
     if [ $tcnt -gt 6 ] ; then Die no ip ; fi
   done
 }
+
+start-libvirt-guest tbacula-dir 27
+dirip=`cat tbacula-dir.vgip`
+DoD scp $ssh_opts -r unittest.guest.dir root@$dirip:unittest
+pushd ..
+DoD scp -i tests/tester.id -o StrictHostKeyChecking=no -r `pwd`/manifests root@$dirip:unittest/modules/bacula
+DoD scp -i tests/tester.id -o StrictHostKeyChecking=no -r `pwd`/templates root@$dirip:unittest/modules/bacula
+popd
+DoD ssh $ssh_opts root@$dirip bash unittest/dir.prep.bash
+
+# Die wip - gen director only
 
 start-libvirt-guest tbacula-fd 29
 fdip=`cat tbacula-fd.vgip`
@@ -109,18 +119,9 @@ popd
 DoD ssh $ssh_opts root@$sdip bash unittest/sd.prep.bash
 
 
-start-libvirt-guest tbacula-dir 27
-dirip=`cat tbacula-dir.vgip`
-DoD scp $ssh_opts -r unittest.guest.dir root@$dirip:unittest
-pushd ..
-DoD scp -i tests/tester.id -o StrictHostKeyChecking=no -r `pwd`/manifests root@$dirip:unittest/modules/bacula
-DoD scp -i tests/tester.id -o StrictHostKeyChecking=no -r `pwd`/templates root@$dirip:unittest/modules/bacula
-popd
-DoD ssh $ssh_opts root@$dirip bash unittest/dir.prep.bash
-
 
 # the tests
-DoD ssh $ssh_opts root@$dirip bash unittest/unittest.bash
+DoD ssh $ssh_opts root@$dirip bash unittest/dirtest.bash
 
 # cleanup
 virsh shutdown tbacula-dir

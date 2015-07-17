@@ -4,28 +4,29 @@
 #
 # No spaces in subcomponent names.
 class bacula::dir (
-  $dirname      = $::bacula::params::dirname,
-  $configdir    = $::bacula::params::configdir,
-  $rundir       = $::bacula::params::rundir,
-  $libdir       = $::bacula::params::libdir,
-  $workdir      = $::bacula::params::workdir,
-  $restoredir   = $::bacula::params::restoredir,
-  $db_backend   = 'postgresql',
-  $db_host      = 'localhost',
-  $db_adm_pass  = undef,
-  $db_user      = 'bacula',
-  $db_pass      = 'bacula',
-  $db_name      = 'bacula',
-  $db_dumpdir   = "$::bacula::params::workdir/dump", # Fixme
-  $max_jobs     = 5,
-  $packages     = $::bacula::params::dirpkgs,
-  $service      = $::bacula::params::dirsvc,
-  $mail_to      = 'root@localhost',
-  $user         = $::bacula::params::user,
-  $group        = $::bacula::params::group,
-#  $db_nix_user  = 'postgres',
-#  $db_nix_group = 'postgres',
-  $sdaddr      = $::bacula::params::sdaddr,
+  $dirname       = $::bacula::params::dirname,
+  $dirpass       = $::bacula::params::dirpass,
+  $configdir     = $::bacula::params::configdir,
+  $rundir        = $::bacula::params::rundir,
+  $libdir        = $::bacula::params::libdir,
+  $workdir       = $::bacula::params::workdir,
+  $restoredir    = $::bacula::params::restoredir,
+  $max_jobs      = 5,
+  $packages      = $::bacula::params::dirpkgs,
+  $service       = $::bacula::params::dirsvc,
+  $mail_to       = 'root@localhost',
+  $user          = $::bacula::params::user,
+  $group         = $::bacula::params::group,
+  $catalogname   = $::bacula::params::catalogname,
+  $dbbackend     = $::bacula::params::dbbackend,
+  $install_dbsrv = $::bacula::params::install_dbsrv,
+  $dbsrv_pass    = $::bacula::params::dbrv_pass,
+  $dbhost        = $::bacula::params::dbhost,
+  $dbname        = $::bacula::params::dbname,
+  $dbuser        = $::bacula::params::dbuser,
+  $dbpass        = $::bacula::params::dbpass,
+  $jobmesgs      = $::bacula::params::jobmesgs,
+  $sdaddr        = $::bacula::params::sdaddr,
   ) inherits ::bacula::params {
 
 
@@ -40,15 +41,6 @@ class bacula::dir (
     require => Package[$packages],
   }
 
-  class { 'bacula::dir::database' :
-    adm_pass => $db_adm_pass,
-    backend  => $db_backend,
-    host     => $db_host,
-    name     => $db_name,
-    user     => $db_user,
-    pass     => $db_pass,
-  }
-
   file { [$configdir,
           $rundir,
           $libdir,
@@ -57,6 +49,15 @@ class bacula::dir (
           $restoredir,] :
     ensure  => 'directory',
     mode    => '0750',
+  }
+
+  class { 'bacula::dir::database' :
+    backend     => $dbbackend,
+    install_srv => $install_dbbackend,
+    srv_pass    => $dbsrv_pass,
+    host        => $dbhost,
+    user        => $dbuser,
+    pass        => $dbpass,
   }
 
   file { "${configdir}/bacula-dir.conf" :
@@ -80,11 +81,7 @@ class bacula::dir (
   }
   class { 'bacula::fd' :
     dirname       => "${::hostname}-dir",
-    pgres_support => true,
     fd_only       => false,
-  }
-  bacula::dir::client { $::hostname :
-    configdir => $configdir,
   }
   class { 'bacula::bconsole' : }
 
@@ -95,26 +92,6 @@ class bacula::dir (
       media_type => 'File'
     }
   }
-  bacula::dir::job { 'Restore' :
-    jtype           => 'Job',
-    client          => $::hostname,
-    type            => 'Restore',
-    messages        => "${::hostname}-msg-standard",
-    storage         => 'Default',
-    pool            => 'Default',
-    fileset         => 'FullSet',
-    where           => $restoredir,
-  }
-  bacula::dir::job { 'Default' :
-    jtype           => 'JobDefs',
-    client          => $::hostname,
-    type            => 'Backup',
-    messages        => "${::hostname}-msg-standard",
-    storage         => 'Default',
-    pool            => 'Default',
-    priority        => 10,
-    write_bootstrap => "${workdir}/%c.bsr",
-  }
   bacula::dir::pool { 'Default' :
     recycle       => 'yes',
     auto_prune    => 'yes',
@@ -122,21 +99,43 @@ class bacula::dir (
     max_vol_bytes => '100G',
     label_format  => "${::hostname}.backup.vol.",
   }
-  bacula::dir::fileset { 'FullSet' :
-    include => [ [ ['/','/home'],['signature = MD5'] ] ],
+
+  bacula::dir::job { 'Restore' :
+    jtype           => 'Job',
+    client          => $::hostname,
+    type            => 'Restore',
+    storage         => 'Default',
+    pool            => 'Default',
+    fileset         => 'FullSet',
+    where           => $restoredir,
   }
-  # sudo::conf { 'bacula-postgres' :
-  #   priority => 10,
-  #   content  => 'bacula ALL = (postgres) NOPASSWD: ALL',
-  # }
-  case $db_backend {
-    'postgresql' : {
-      bacula::dir::jobdefs::postgresql { "${::hostname}-pgsql-jdef" :
-        libdir => $libdir
-      }
-    }
-    default : {
-      fail( "unsupport db backend: ${db_backend}" )
-    }
+  bacula::dir::job { 'Default' :
+    jtype           => 'JobDefs',
+    type            => 'Backup',
+    storage         => 'Default',
+    pool            => 'Default',
+    priority        => 10,
+    write_bootstrap => "${workdir}/%c.bsr",
+  }
+  bacula::dir::fileset { 'BacCatalog' :
+    includes => [ [ ['/var/spool/bacula/bacula.sql'],['signature = MD5'] ] ],
+  }
+
+  bacula::dir::job { 'bacula-catalog' :
+    jtype           => 'Job',
+    client          => $::hostname,
+    fileset         => 'BacCatalog',
+    client_before   => "/usr/libexec/bacula/make_catalog_backup.pl ${catalogname}",
+    client_after    => '/usr/libexec/bacula/delete_catalog_backup',
+    write_bootstrap => '/var/spool/bacula/%n.bsr',
+  }
+
+  bacula::dir::fileset { 'FullSet' :
+    includes => [ [ ['/etc','/srv','/home'],['signature = MD5'] ] ],
+  }
+  bacula::dir::client { $::hostname : }
+  bacula::dir::job { $::hostname :
+    fileset => 'FullSet',
+    client  => $::hostname,
   }
 }
