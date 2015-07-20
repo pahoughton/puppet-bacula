@@ -5,7 +5,7 @@
 class bacula::sd (
   $dirname    = $::bacula::params::dirname,
   $configdir  = $::bacula::params::configdir,
-  $rundir     = $::bacula::params::rundir,
+  $rundir     = '/var/run',
   $libdir     = $::bacula::params::libdir,
   $workdir    = $::bacula::params::workdir,
   $backupdir  = '/var/lib/bacula/backups',
@@ -14,7 +14,8 @@ class bacula::sd (
   $service    = 'bacula-sd',
   $user       = $::bacula::params::user,
   $group      = $::bacula::params::group,
-  $password   = 'bacula-sd-pass',
+  $sdname     = $::hostname,
+  $password   = 'bacsdpass',
   $auto_label = undef,
   $is_dir     = undef,
   $template   = 'bacula/bacula-sd.conf.erb'
@@ -25,10 +26,6 @@ class bacula::sd (
     group   => $group,
   }
 
-  exec { "mkdir -p ${workdir} - bacula::sd" :
-    command => "/bin/mkdir -p '${workdir}'",
-    creates => $workdir,
-  }
   if $packages == undef {
     case $::operatingsystem {
       'CentOS' : {
@@ -52,6 +49,16 @@ class bacula::sd (
     ensure => installed,
   }
 
+  exec { "mkdir -p ${workdir} - bacula::sd" :
+    command => "/bin/mkdir -p '${workdir}'",
+    creates => $workdir,
+  }
+  ->
+  file { $workdir :
+    ensure  => 'directory',
+    require => Package[$sd_packages],
+  }
+
   file { "${configdir}/bacula-sd.conf" :
     ensure  => file,
     content => template($template),
@@ -67,6 +74,12 @@ class bacula::sd (
     ensure  => 'file',
     content => "# empty\n",
     before  => Service[$service],
+  }
+
+  file { "${backupdir}" :
+    ensure  => 'directory',
+    before  => Service[$service],
+    require => Package[$sd_packages]
   }
   # Register the Service so we can manage it through Puppet
   service { $service :

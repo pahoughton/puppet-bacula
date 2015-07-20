@@ -1,24 +1,9 @@
 #!/bin/bash
 # 2015-06-22 (cc) <paul4hough@gmail.com>
 #
-status=0
 
-[ -z "$DEBUG" ] || set -x
+. unittest/prep.bash
 
-function Dbg {
-  [ -n "$DEBUG" ] && echo $@
-}
-
-function Die {
-  echo Error - $? - $@
-  exit 1
-}
-#DoOrDie
-function DoD {
-  $@ || Die $@
-}
-
-DoD yum -y install puppet
-DoD puppet apply --modulepath=/root/unittest/modules unittest/sdsite.pp
+DoD puppet apply --config unittest/puppet.conf unittest/sdsite.pp
 
 exit $status

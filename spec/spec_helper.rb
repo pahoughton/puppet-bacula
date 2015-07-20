@@ -11,5 +11,7 @@ RSpec.configure do |c|
   c.default_facts = {
     :root_home      => '/root',
     :kernel         => 'Linux',
+    # for concat
+    :concat_basedir => '/var/tmp/concat',
   }
 end

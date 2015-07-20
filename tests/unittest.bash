@@ -88,16 +88,6 @@ function start-libvirt-guest {
   done
 }
 
-start-libvirt-guest tbacula-dir 27
-dirip=`cat tbacula-dir.vgip`
-DoD scp $ssh_opts -r unittest.guest.dir root@$dirip:unittest
-pushd ..
-DoD scp -i tests/tester.id -o StrictHostKeyChecking=no -r `pwd`/manifests root@$dirip:unittest/modules/bacula
-DoD scp -i tests/tester.id -o StrictHostKeyChecking=no -r `pwd`/templates root@$dirip:unittest/modules/bacula
-popd
-DoD ssh $ssh_opts root@$dirip bash unittest/dir.prep.bash
-
-# Die wip - gen director only
 
 start-libvirt-guest tbacula-fd 29
 fdip=`cat tbacula-fd.vgip`
@@ -118,6 +108,15 @@ DoD scp -i tests/tester.id -o StrictHostKeyChecking=no -r `pwd`/templates root@$
 popd
 DoD ssh $ssh_opts root@$sdip bash unittest/sd.prep.bash
 
+
+start-libvirt-guest tbacula-dir 27
+dirip=`cat tbacula-dir.vgip`
+DoD scp $ssh_opts -r unittest.guest.dir root@$dirip:unittest
+pushd ..
+DoD scp -i tests/tester.id -o StrictHostKeyChecking=no -r `pwd`/manifests root@$dirip:unittest/modules/bacula
+DoD scp -i tests/tester.id -o StrictHostKeyChecking=no -r `pwd`/templates root@$dirip:unittest/modules/bacula
+popd
+DoD ssh $ssh_opts root@$dirip bash unittest/dir.prep.bash
 
 
 # the tests

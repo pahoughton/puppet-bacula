@@ -5,9 +5,10 @@
 # This is installed on the client
 
 class bacula::fd (
+  $fdname      = $::hostname,
   $dirname       = $::bacula::params::dirname,
   $configdir     = $::bacula::params::configdir,
-  $rundir        = $::bacula::params::rundir,
+  $rundir        = '/var/run',
   $libdir        = $::bacula::params::libdir,
   $workdir       = $::bacula::params::workdir,
   $backupdir     = '/var/lib/bacula/backups',
@@ -29,11 +30,6 @@ class bacula::fd (
       'RedHat' => 'bacula-client',
     },
     default => $packages,
-  }
-
-  $fdname = $title ? {
-    undef   => "${::hostname}",
-    default =>  $title,
   }
 
   package { $fdpkgs :

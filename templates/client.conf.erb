@@ -1,12 +1,8 @@
-# client.conf.erb - 2014-02-16 10:05
-#
-# Copyright (c) 2014 Paul Houghton <paul4hough@gmail.com>
-#
+# 2014-02-16 (cc) paul4hough@gmail.com
 #
 # DO NOT EDIT - Managed by Puppet
 #
-# Bacula Director Client Configuration
-#   for <%= @fdname %>-fd
+# Bacula Director Client Configuration for <%= @fdname %>
 Client {
   Name = "<%= @fdname -%>-fd"
   Address = "<%= @fdname -%>"

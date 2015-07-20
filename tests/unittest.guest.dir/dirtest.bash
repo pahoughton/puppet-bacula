@@ -34,7 +34,11 @@ messages
 @# now do a restore
 @#
 @output /tmp/bac.restore.$$.out
-restore current all
+restore
+5
+2
+add etc
+.
 yes
 wait
 messages
@@ -45,4 +49,4 @@ EOF
 cat /tmp/bac.backup.$$.out
 cat /tmp/bac.restore.$$.out
 
-Die Test not configured
+DoD ssh tbacula-fd diff -rc -x 'adjtime' -x ifdown -x ifup -x grub.conf /etc /var/tmp/etc

@@ -15,17 +15,19 @@ $pkgs = {
   'debian' => 'bacula-fd',
 }
 
+hostname = 'btsthost'
+configdir='/etc/bacula'
+dirhost='bactestdir'
+
 ['RedHat','Fedora','CentOS','Ubuntu'].each { |os|
   describe 'bacula::fd', :type => :class do
     context "supports operating system #{os}" do
       let(:facts) do {
           :osfamily  => $os_family[os],
           :operatingsystem => os,
-          :hostname => 'testhost',
+          :hostname => hostname,
       } end
 
-      configdir='/etc/bacula'
-      dirhost='bactestdir'
       context "with dir_host => #{dirhost}" do
         let :params do {
           :dirname => "#{dirhost}-dir",
@@ -35,6 +37,7 @@ $pkgs = {
         it { should contain_file("#{configdir}/bacula-fd.conf").
           with_ensure('file').
           with_content(/#{dirhost}/).
+          with_content(/Name .*= *"#{hostname}-fd"/).
           with_content(/bacula-fd-pass/)
         }
         it { should contain_service('bacula-fd').

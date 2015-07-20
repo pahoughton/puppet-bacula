@@ -7,7 +7,7 @@ class bacula::dir (
   $dirname       = $::bacula::params::dirname,
   $dirpass       = $::bacula::params::dirpass,
   $configdir     = $::bacula::params::configdir,
-  $rundir        = $::bacula::params::rundir,
+  $rundir        = '/var/run/bacula',
   $libdir        = $::bacula::params::libdir,
   $workdir       = $::bacula::params::workdir,
   $restoredir    = $::bacula::params::restoredir,
@@ -88,7 +88,7 @@ class bacula::dir (
   if $sdaddr {
     bacula::dir::storage { 'Default' :
       sd_host    => $sdaddr,
-      device     => 'Default',
+      device     => 'sd-default-backupdir',
       media_type => 'File'
     }
   }

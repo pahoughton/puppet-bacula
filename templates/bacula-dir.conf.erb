@@ -5,12 +5,12 @@
 # DO NOT EDIT - Managed by Puppet
 #
 # Bacula Director Master Configuration
-#   for <%= @hostname %>-dir
+#   for <%= @hostname %>
 
 # Define the name of this director so other clients can
 # connect to it and work with our system
 Director {
-  Name = "<%= @hostname -%>-dir"
+  Name = "<%= @dirname -%>"
   Password = "<%= @dirpass %>"
   Query File = "/etc/bacula/query.sql"
   Working Directory = "<%= @workdir %>"

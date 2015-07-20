@@ -2,5 +2,3 @@
 # 2015-07-02 (cc) <paul4hough@gmail.com>
 #
 bacula::params::dirname: hierabdir
-bacula::params::rundir: /var/run/test-hiera-rundir
-bacula::sd::password: bsd@bd2test

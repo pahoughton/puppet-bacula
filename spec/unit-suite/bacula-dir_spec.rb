@@ -1,8 +1,4 @@
-# bacula-dir_spec.rb - 2014-03-15 08:42
-#
-# Copyright (c) 2014 Paul Houghton <paul4hough@gmail.com>
-#
-# database args validated by database class tests
+# 2014-03-15 (cc) paul4hough@gmail.com
 #
 require 'spec_helper'
 
@@ -10,8 +6,8 @@ tobject = 'bacula::dir'
 
 supported = {
   'RedHat' => {
-    'RedHat' => ['6','7'],
-    'CentOS' => ['6','7'],
+    'RedHat' => ['6.5','6.6','7.0'],
+    'CentOS' => ['6.5','6.6','7.0'],
     }
 }
 ospkgs = {

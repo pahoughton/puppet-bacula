@@ -2,6 +2,8 @@
 #
 node default {
   notify { 'dir node default' : }
-  class { 'bacula::dir' : }
-  bacula::dir::client { 'tbacula-fd' : }
+  class { 'bacula::dir' :
+    sdaddr => 'tbacula-sd'
+  }
+  bacula::dir::node { 'tbacula-fd' : }
 }

@@ -4,6 +4,8 @@
 #
 require 'spec_helper'
 
+tobject = 'bacula::sd'
+
 os_rel = {
   'RedHat' => '6.',
   'Fedora' => '20',
@@ -16,9 +18,11 @@ os_family = {
   'CentOS' => 'RedHat',
   'Ubuntu' => 'Debian',
 }
-tobject = 'bacula::sd'
+
+confdir = '/etc/bacula'
+workdir = '/var/lib/bacula/work'
+
 ['RedHat','Fedora','CentOS','Ubuntu'].each { |os|
-  confdir = '/etc/bacula'
   describe tobject, :type => :class do
     tfacts = {
       :osfamily               => os_family[os],
@@ -26,7 +30,7 @@ tobject = 'bacula::sd'
       :operatingsystemrelease => os_rel[os],
       :os_maj_version         => os_rel[os],
       :kernel                 => 'Linux',
-      :hostname               => 'tester',
+      :hostname               => 'bactsthost',
     }
     let(:facts) do tfacts end
     context "supports facts #{tfacts}" do
@@ -38,9 +42,14 @@ tobject = 'bacula::sd'
 
         it { should contain_file("#{confdir}/bacula-sd.conf").
           with_ensure('file').
+          with_owner('bacula').
           with_content(/#{dirname}/).
-          with_content(/bsd@bd2test/).
-          with_content(/test-hiera-rundir/)
+          with_content(/bacsdpass/).
+          with_content(/Name *= *.bactsthost/)
+        }
+        it { should contain_file("#{workdir}").
+          with_ensure('directory').
+          with_owner('bacula')
         }
         it { should contain_service('bacula-sd').
           with({ 'ensure' => 'running',

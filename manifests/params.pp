@@ -4,7 +4,6 @@ class bacula::params (
   $dirname      = 'bacula-dir', # bacula director name
   $dirpass      = 'bacula-dir-pass',
   $configdir    = '/etc/bacula',
-  $rundir       = '/var/run/bacula',
   $libdir       = '/var/lib/bacula',
   $workdir      = '/var/lib/bacula/work',
   $restoredir   = '/var/tmp',
@@ -20,8 +19,8 @@ class bacula::params (
   $dbpass       = 'bacula',
   $jobmesgs     = 'JobMesgs',
   $fdpass       = "bacula-fd-pass",
-  $sd_host      = undef,
   $sdaddr       = 'bacula-sd',
+#  $sdpass       = 'sdpass', - fixme not working w/ hiera
   ) {
   case $::operatingsystem {
     'Fedora','RedHat' : {

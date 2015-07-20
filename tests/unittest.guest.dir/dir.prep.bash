@@ -1,27 +1,11 @@
 #!/bin/bash
 # 2015-07-03 (cc) <paul4hough@gmail.com>
 #
-status=0
+. unittest/prep.bash
 
-[ -z "$DEBUG" ] || set -x
+DoD yum -y install rubygems
 
-function Dbg {
-  [ -n "$DEBUG" ] && echo $@
-}
-function Die {
-  echo Error - $? - $@
-  exit 1
-}
-#DoOrDie
-function DoD {
-  $@ || Die $@
-}
-
-DoD yum -y install puppet rubygems
-DoD puppet module install puppetlabs-postgresql
-[ -d /etc/puppet/modules/bacula ] || \
-  mv unittest/modules/bacula /etc/puppet/modules
-
-DoD puppet apply unittest/dirsite.pp
+DoD puppet module --config unittest/pupppet.conf install puppetlabs-postgresql
+DoD puppet apply --config unittest/puppet.conf unittest/dirsite.pp
 
 exit $status
