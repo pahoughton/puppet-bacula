@@ -1,0 +1,68 @@
+# 2014-02-16(cc) paul4hough@gmail.com
+#
+# DO NOT EDIT - Managed by Puppet
+#
+# bacula director node configuration for <%= @fdname %>
+Client {
+  Name = "<%= @fdname -%>-fd"
+  Address = "<%= @fdname -%>"
+  Catalog = "<%= @catalogname -%>"
+  Password = "<%= @password -%>"
+<% if @f_retention -%>
+  File Retention = <%= @f_retention %>
+<% end -%>
+<% if @j_retention -%>
+  Job Retention = <%= @j_retention %>
+<% end -%>
+<% if @auto_prune -%>
+  AutoPrune = <%= @auto_prune %>
+<% end -%>
+<% if @max_jobs -%>
+  Maximum Concurrent Jobs = <%= @max_jobs %>
+<% end -%>
+}
+
+FileSet {
+  Name = "<%= @fdname %>-files"
+<% if @ignore_changes -%>
+  Ignore FileSet Changes = <%= @ignore_changes %>
+<% end -%>
+<% if @enable_vss -%>
+  Enable VSS = <%= @enable_vss %>
+<% end -%>
+<% @includes.each do |inc| %>
+  Include {
+<% if inc[1] -%>
+    Options {
+<% inc[1].each do |opt| -%>
+      <%= opt %>
+<% end -%>
+    }
+<% end -%>
+<% inc[0].each do |fn| -%>
+    File = "<%= fn %>"
+<% end -%>
+  }
+<% end %>
+<% if @options -%>
+  Options {
+<% @options.each do |opt| -%>
+  <%= opt %>
+<% end -%>
+  }
+<% end -%>
+<% if @exclude -%>
+  Exclude {
+<% @exclude.each do |fn| -%>
+    File = "<%= fn %>"
+<% end -%>
+  }
+<% end -%>
+}
+
+Job {
+  Name = "<%= @fdname %>"
+  Client = "<%= @fdname %>-fd"
+  FileSet = "<%= @fdname %>-files"
+  JobDefs = "Default"
+}
